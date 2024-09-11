@@ -29,6 +29,8 @@ RUN pip install uwsgi
 
 # Prepare the migration script on run
 RUN chmod +x /app/conf/django_launch/launch_tasks.sh
+RUN chmod +x /app/conf/celery/scheduler_launch.sh
+RUN chmod +x /app/conf/celery/worker_launch.sh
 
 RUN chown -R django:django /app
 
