@@ -1,0 +1,98 @@
+services:
+  web:
+    image: django-app
+    hostname: web
+    environment:
+      - DJANGO_DEBUG=False
+      - VIRTUAL_HOST=localhost
+      - ALLOWED_HOSTS=localhost
+      - POSTGRES_DB=boostress
+      - POSTGRES_USER=boostress
+      - ADMIN_USER=admin
+      - ADMIN_EMAIL=email@example.com
+    secrets:
+      - django_secret_key
+      - postgres_password
+      - admin_password
+    depends_on:
+      - db
+      - message_broker
+    volumes:
+      - .:/app
+      - ./logs/django/django_debug.log:/app/logs/django/django_debug.log
+
+  db:
+    image: postgres:15-alpine
+    hostname: db
+    environment:
+      - POSTGRES_DB=boostress
+      - POSTGRES_USER=boostress
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:latest
+    hostname: nginx
+    volumes:
+      - ./conf/nginx/add_env_vars.sh:/app/add_env_vars.sh
+      - ./logs/nginx:/var/log/nginx
+      - ./conf/nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
+      - ./static:/app/static
+    environment:
+      - VIRTUAL_HOST=localhost
+    entrypoint: ["/app/add_env_vars.sh"]
+    command: ["nginx", "-g", "daemon off;"]
+    ports:
+      - "1080:80"
+    depends_on:
+      - web
+      - db
+
+  message_broker:
+    image: redis:latest
+    hostname: message_broker
+    ports:
+      - "6379:6379"
+
+  scheduler:
+    image: django-app
+    command: /app/conf/celery/scheduler_launch.sh
+    environment:
+      - DJANGO_DEBUG=False
+      - POSTGRES_DB=boostress
+      - POSTGRES_USER=boostress
+    secrets:
+      - postgres_password
+    volumes:
+      - ./logs:/app/logs
+      - ./conf:/app/conf
+    depends_on:
+      - redis
+      - db
+
+  worker:
+    image: django-app
+    command: /app/conf/celery/worker_launch.sh
+    environment:
+      - DJANGO_DEBUG=False
+      - POSTGRES_DB=boostress
+      - POSTGRES_USER=boostress
+    secrets:
+      - postgres_password
+    volumes:
+      - ./logs:/app/logs
+      - ./conf:/app/conf
+    depends_on:
+      - redis
+      - db
+
+secrets:
+  django_secret_key:
+    external: true
+  postgres_password:
+    external: true
+  admin_password:
+    external: true
