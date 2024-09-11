@@ -1,0 +1,805 @@
+[2024-09-11 19:36:35,136: INFO/MainProcess] beat: Starting...
+[2024-09-11 19:36:35,151: CRITICAL/MainProcess] beat raised exception <class 'django.db.utils.OperationalError'>: OperationalError('connection to server at "db" (10.0.1.4), port 5432 failed: FATAL:  the database system is starting up\n')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: connection to server at "db" (10.0.1.4), port 5432 failed: FATAL:  the database system is starting up
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 113, in start_scheduler
+    service.start()
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 634, in start
+    humanize_seconds(self.scheduler.max_interval))
+  File "/usr/local/lib/python3.10/site-packages/kombu/utils/objects.py", line 40, in __get__
+    return super().__get__(instance, owner)
+  File "/usr/local/lib/python3.10/functools.py", line 981, in __get__
+    val = self.func(instance)
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 677, in scheduler
+    return self.get_scheduler()
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 668, in get_scheduler
+    return symbol_by_name(self.scheduler_cls, aliases=aliases)(
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 233, in __init__
+    Scheduler.__init__(self, *args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 264, in __init__
+    self.setup_schedule()
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 241, in setup_schedule
+    self.install_default_entries(self.schedule)
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 363, in schedule
+    self._schedule = self.all_as_schedule()
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 247, in all_as_schedule
+    for model in self.Model.objects.enabled():
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1572, in execute_sql
+    cursor = self.connection.cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 320, in cursor
+    return self._cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+    self.ensure_connection()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+    with self.wrap_database_errors:
+  File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+django.db.utils.OperationalError: connection to server at "db" (10.0.1.4), port 5432 failed: FATAL:  the database system is starting up
+
+[2024-09-11 19:36:35,160: WARNING/MainProcess] Traceback (most recent call last):
+[2024-09-11 19:36:35,161: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[2024-09-11 19:36:35,162: WARNING/MainProcess]     
+[2024-09-11 19:36:35,162: WARNING/MainProcess] self.connect()
+[2024-09-11 19:36:35,163: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:35,164: WARNING/MainProcess]     
+[2024-09-11 19:36:35,165: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:35,166: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+[2024-09-11 19:36:35,167: WARNING/MainProcess]     
+[2024-09-11 19:36:35,167: WARNING/MainProcess] self.connection = self.get_new_connection(conn_params)
+[2024-09-11 19:36:35,168: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:35,168: WARNING/MainProcess]     
+[2024-09-11 19:36:35,169: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:35,170: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[2024-09-11 19:36:35,170: WARNING/MainProcess]     
+[2024-09-11 19:36:35,171: WARNING/MainProcess] connection = self.Database.connect(**conn_params)
+[2024-09-11 19:36:35,172: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+[2024-09-11 19:36:35,172: WARNING/MainProcess]     
+[2024-09-11 19:36:35,173: WARNING/MainProcess] conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+[2024-09-11 19:36:35,174: WARNING/MainProcess] psycopg2
+[2024-09-11 19:36:35,175: WARNING/MainProcess] .
+[2024-09-11 19:36:35,176: WARNING/MainProcess] OperationalError
+[2024-09-11 19:36:35,177: WARNING/MainProcess] : 
+[2024-09-11 19:36:35,177: WARNING/MainProcess] connection to server at "db" (10.0.1.4), port 5432 failed: FATAL:  the database system is starting up
+[2024-09-11 19:36:35,178: WARNING/MainProcess] 
+The above exception was the direct cause of the following exception:
+[2024-09-11 19:36:35,179: WARNING/MainProcess] Traceback (most recent call last):
+[2024-09-11 19:36:35,179: WARNING/MainProcess]   File "/usr/local/bin/celery", line 8, in <module>
+[2024-09-11 19:36:35,180: WARNING/MainProcess]     
+[2024-09-11 19:36:35,181: WARNING/MainProcess] sys.exit(main())
+[2024-09-11 19:36:35,181: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/__main__.py", line 15, in main
+[2024-09-11 19:36:35,182: WARNING/MainProcess]     
+[2024-09-11 19:36:35,183: WARNING/MainProcess] sys.exit(_main())
+[2024-09-11 19:36:35,184: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/celery.py", line 236, in main
+[2024-09-11 19:36:35,186: WARNING/MainProcess]     
+[2024-09-11 19:36:35,187: WARNING/MainProcess] return celery(auto_envvar_prefix="CELERY")
+[2024-09-11 19:36:35,188: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+[2024-09-11 19:36:35,190: WARNING/MainProcess]     
+[2024-09-11 19:36:35,191: WARNING/MainProcess] return self.main(*args, **kwargs)
+[2024-09-11 19:36:35,192: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1078, in main
+[2024-09-11 19:36:35,193: WARNING/MainProcess]     
+[2024-09-11 19:36:35,194: WARNING/MainProcess] rv = self.invoke(ctx)
+[2024-09-11 19:36:35,195: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1688, in invoke
+[2024-09-11 19:36:35,196: WARNING/MainProcess]     
+[2024-09-11 19:36:35,198: WARNING/MainProcess] return _process_result(sub_ctx.command.invoke(sub_ctx))
+[2024-09-11 19:36:35,198: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+[2024-09-11 19:36:35,200: WARNING/MainProcess]     
+[2024-09-11 19:36:35,201: WARNING/MainProcess] return ctx.invoke(self.callback, **ctx.params)
+[2024-09-11 19:36:35,202: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+[2024-09-11 19:36:35,203: WARNING/MainProcess]     
+[2024-09-11 19:36:35,204: WARNING/MainProcess] return __callback(*args, **kwargs)
+[2024-09-11 19:36:35,205: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/decorators.py", line 33, in new_func
+[2024-09-11 19:36:35,207: WARNING/MainProcess]     
+[2024-09-11 19:36:35,209: WARNING/MainProcess] return f(get_current_context(), *args, **kwargs)
+[2024-09-11 19:36:35,209: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/base.py", line 135, in caller
+[2024-09-11 19:36:35,210: WARNING/MainProcess]     
+[2024-09-11 19:36:35,211: WARNING/MainProcess] return f(ctx, *args, **kwargs)
+[2024-09-11 19:36:35,212: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/beat.py", line 72, in beat
+[2024-09-11 19:36:35,212: WARNING/MainProcess]     
+[2024-09-11 19:36:35,213: WARNING/MainProcess] return beat().run()
+[2024-09-11 19:36:35,214: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 84, in run
+[2024-09-11 19:36:35,215: WARNING/MainProcess]     
+[2024-09-11 19:36:35,215: WARNING/MainProcess] self.start_scheduler()
+[2024-09-11 19:36:35,216: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 113, in start_scheduler
+[2024-09-11 19:36:35,218: WARNING/MainProcess]     
+[2024-09-11 19:36:35,219: WARNING/MainProcess] service.start()
+[2024-09-11 19:36:35,220: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 634, in start
+[2024-09-11 19:36:35,221: WARNING/MainProcess]     
+[2024-09-11 19:36:35,222: WARNING/MainProcess] humanize_seconds(self.scheduler.max_interval))
+[2024-09-11 19:36:35,223: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/kombu/utils/objects.py", line 40, in __get__
+[2024-09-11 19:36:35,224: WARNING/MainProcess]     
+[2024-09-11 19:36:35,225: WARNING/MainProcess] return super().__get__(instance, owner)
+[2024-09-11 19:36:35,227: WARNING/MainProcess]   File "/usr/local/lib/python3.10/functools.py", line 981, in __get__
+[2024-09-11 19:36:35,229: WARNING/MainProcess]     
+[2024-09-11 19:36:35,230: WARNING/MainProcess] val = self.func(instance)
+[2024-09-11 19:36:35,230: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 677, in scheduler
+[2024-09-11 19:36:35,231: WARNING/MainProcess]     
+[2024-09-11 19:36:35,231: WARNING/MainProcess] return self.get_scheduler()
+[2024-09-11 19:36:35,232: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 668, in get_scheduler
+[2024-09-11 19:36:35,232: WARNING/MainProcess]     
+[2024-09-11 19:36:35,233: WARNING/MainProcess] return symbol_by_name(self.scheduler_cls, aliases=aliases)(
+[2024-09-11 19:36:35,234: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 233, in __init__
+[2024-09-11 19:36:35,235: WARNING/MainProcess]     
+[2024-09-11 19:36:35,236: WARNING/MainProcess] Scheduler.__init__(self, *args, **kwargs)
+[2024-09-11 19:36:35,237: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 264, in __init__
+[2024-09-11 19:36:35,238: WARNING/MainProcess]     
+[2024-09-11 19:36:35,239: WARNING/MainProcess] self.setup_schedule()
+[2024-09-11 19:36:35,239: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 241, in setup_schedule
+[2024-09-11 19:36:35,241: WARNING/MainProcess]     
+[2024-09-11 19:36:35,242: WARNING/MainProcess] self.install_default_entries(self.schedule)
+[2024-09-11 19:36:35,242: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 363, in schedule
+[2024-09-11 19:36:35,244: WARNING/MainProcess]     
+[2024-09-11 19:36:35,245: WARNING/MainProcess] self._schedule = self.all_as_schedule()
+[2024-09-11 19:36:35,246: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 247, in all_as_schedule
+[2024-09-11 19:36:35,248: WARNING/MainProcess]     
+[2024-09-11 19:36:35,249: WARNING/MainProcess] for model in self.Model.objects.enabled():
+[2024-09-11 19:36:35,249: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 400, in __iter__
+[2024-09-11 19:36:35,250: WARNING/MainProcess]     
+[2024-09-11 19:36:35,251: WARNING/MainProcess] self._fetch_all()
+[2024-09-11 19:36:35,251: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+[2024-09-11 19:36:35,253: WARNING/MainProcess]     
+[2024-09-11 19:36:35,254: WARNING/MainProcess] self._result_cache = list(self._iterable_class(self))
+[2024-09-11 19:36:35,255: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+[2024-09-11 19:36:35,256: WARNING/MainProcess]     
+[2024-09-11 19:36:35,257: WARNING/MainProcess] results = compiler.execute_sql(
+[2024-09-11 19:36:35,258: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1572, in execute_sql
+[2024-09-11 19:36:35,260: WARNING/MainProcess]     
+[2024-09-11 19:36:35,260: WARNING/MainProcess] cursor = self.connection.cursor()
+[2024-09-11 19:36:35,261: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:35,262: WARNING/MainProcess]     
+[2024-09-11 19:36:35,263: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:35,263: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[2024-09-11 19:36:35,264: WARNING/MainProcess]     
+[2024-09-11 19:36:35,265: WARNING/MainProcess] return self._cursor()
+[2024-09-11 19:36:35,265: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[2024-09-11 19:36:35,266: WARNING/MainProcess]     
+[2024-09-11 19:36:35,267: WARNING/MainProcess] self.ensure_connection()
+[2024-09-11 19:36:35,267: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:35,268: WARNING/MainProcess]     
+[2024-09-11 19:36:35,269: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:35,269: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[2024-09-11 19:36:35,270: WARNING/MainProcess]     
+[2024-09-11 19:36:35,271: WARNING/MainProcess] with self.wrap_database_errors:
+[2024-09-11 19:36:35,271: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+[2024-09-11 19:36:35,272: WARNING/MainProcess]     
+[2024-09-11 19:36:35,273: WARNING/MainProcess] raise dj_exc_value.with_traceback(traceback) from exc_value
+[2024-09-11 19:36:35,273: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[2024-09-11 19:36:35,275: WARNING/MainProcess]     
+[2024-09-11 19:36:35,276: WARNING/MainProcess] self.connect()
+[2024-09-11 19:36:35,277: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:35,277: WARNING/MainProcess]     
+[2024-09-11 19:36:35,278: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:35,279: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+[2024-09-11 19:36:35,279: WARNING/MainProcess]     
+[2024-09-11 19:36:35,280: WARNING/MainProcess] self.connection = self.get_new_connection(conn_params)
+[2024-09-11 19:36:35,281: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:35,282: WARNING/MainProcess]     
+[2024-09-11 19:36:35,282: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:35,283: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[2024-09-11 19:36:35,284: WARNING/MainProcess]     
+[2024-09-11 19:36:35,284: WARNING/MainProcess] connection = self.Database.connect(**conn_params)
+[2024-09-11 19:36:35,285: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+[2024-09-11 19:36:35,286: WARNING/MainProcess]     
+[2024-09-11 19:36:35,286: WARNING/MainProcess] conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+[2024-09-11 19:36:35,287: WARNING/MainProcess] django.db.utils
+[2024-09-11 19:36:35,288: WARNING/MainProcess] .
+[2024-09-11 19:36:35,289: WARNING/MainProcess] OperationalError
+[2024-09-11 19:36:35,289: WARNING/MainProcess] : 
+[2024-09-11 19:36:35,290: WARNING/MainProcess] connection to server at "db" (10.0.1.4), port 5432 failed: FATAL:  the database system is starting up
+[2024-09-11 19:36:43,602: INFO/MainProcess] beat: Starting...
+[2024-09-11 19:36:43,615: CRITICAL/MainProcess] beat raised exception <class 'django.db.utils.OperationalError'>: OperationalError('connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up\n')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 113, in start_scheduler
+    service.start()
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 634, in start
+    humanize_seconds(self.scheduler.max_interval))
+  File "/usr/local/lib/python3.10/site-packages/kombu/utils/objects.py", line 40, in __get__
+    return super().__get__(instance, owner)
+  File "/usr/local/lib/python3.10/functools.py", line 981, in __get__
+    val = self.func(instance)
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 677, in scheduler
+    return self.get_scheduler()
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 668, in get_scheduler
+    return symbol_by_name(self.scheduler_cls, aliases=aliases)(
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 233, in __init__
+    Scheduler.__init__(self, *args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 264, in __init__
+    self.setup_schedule()
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 241, in setup_schedule
+    self.install_default_entries(self.schedule)
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 363, in schedule
+    self._schedule = self.all_as_schedule()
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 247, in all_as_schedule
+    for model in self.Model.objects.enabled():
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1572, in execute_sql
+    cursor = self.connection.cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 320, in cursor
+    return self._cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+    self.ensure_connection()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+    with self.wrap_database_errors:
+  File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+django.db.utils.OperationalError: connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up
+
+[2024-09-11 19:36:43,620: WARNING/MainProcess] Traceback (most recent call last):
+[2024-09-11 19:36:43,622: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[2024-09-11 19:36:43,624: WARNING/MainProcess]     
+[2024-09-11 19:36:43,625: WARNING/MainProcess] self.connect()
+[2024-09-11 19:36:43,626: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:43,627: WARNING/MainProcess]     
+[2024-09-11 19:36:43,629: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:43,631: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+[2024-09-11 19:36:43,632: WARNING/MainProcess]     
+[2024-09-11 19:36:43,634: WARNING/MainProcess] self.connection = self.get_new_connection(conn_params)
+[2024-09-11 19:36:43,635: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:43,636: WARNING/MainProcess]     
+[2024-09-11 19:36:43,637: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:43,639: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[2024-09-11 19:36:43,640: WARNING/MainProcess]     
+[2024-09-11 19:36:43,641: WARNING/MainProcess] connection = self.Database.connect(**conn_params)
+[2024-09-11 19:36:43,642: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+[2024-09-11 19:36:43,643: WARNING/MainProcess]     
+[2024-09-11 19:36:43,645: WARNING/MainProcess] conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+[2024-09-11 19:36:43,647: WARNING/MainProcess] psycopg2
+[2024-09-11 19:36:43,648: WARNING/MainProcess] .
+[2024-09-11 19:36:43,649: WARNING/MainProcess] OperationalError
+[2024-09-11 19:36:43,650: WARNING/MainProcess] : 
+[2024-09-11 19:36:43,651: WARNING/MainProcess] connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up
+[2024-09-11 19:36:43,653: WARNING/MainProcess] 
+The above exception was the direct cause of the following exception:
+[2024-09-11 19:36:43,654: WARNING/MainProcess] Traceback (most recent call last):
+[2024-09-11 19:36:43,655: WARNING/MainProcess]   File "/usr/local/bin/celery", line 8, in <module>
+[2024-09-11 19:36:43,657: WARNING/MainProcess]     
+[2024-09-11 19:36:43,658: WARNING/MainProcess] sys.exit(main())
+[2024-09-11 19:36:43,659: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/__main__.py", line 15, in main
+[2024-09-11 19:36:43,661: WARNING/MainProcess]     
+[2024-09-11 19:36:43,662: WARNING/MainProcess] sys.exit(_main())
+[2024-09-11 19:36:43,664: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/celery.py", line 236, in main
+[2024-09-11 19:36:43,665: WARNING/MainProcess]     
+[2024-09-11 19:36:43,667: WARNING/MainProcess] return celery(auto_envvar_prefix="CELERY")
+[2024-09-11 19:36:43,668: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+[2024-09-11 19:36:43,671: WARNING/MainProcess]     
+[2024-09-11 19:36:43,672: WARNING/MainProcess] return self.main(*args, **kwargs)
+[2024-09-11 19:36:43,674: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1078, in main
+[2024-09-11 19:36:43,677: WARNING/MainProcess]     
+[2024-09-11 19:36:43,678: WARNING/MainProcess] rv = self.invoke(ctx)
+[2024-09-11 19:36:43,680: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1688, in invoke
+[2024-09-11 19:36:43,681: WARNING/MainProcess]     
+[2024-09-11 19:36:43,682: WARNING/MainProcess] return _process_result(sub_ctx.command.invoke(sub_ctx))
+[2024-09-11 19:36:43,683: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+[2024-09-11 19:36:43,684: WARNING/MainProcess]     
+[2024-09-11 19:36:43,685: WARNING/MainProcess] return ctx.invoke(self.callback, **ctx.params)
+[2024-09-11 19:36:43,686: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+[2024-09-11 19:36:43,688: WARNING/MainProcess]     
+[2024-09-11 19:36:43,689: WARNING/MainProcess] return __callback(*args, **kwargs)
+[2024-09-11 19:36:43,691: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/decorators.py", line 33, in new_func
+[2024-09-11 19:36:43,692: WARNING/MainProcess]     
+[2024-09-11 19:36:43,693: WARNING/MainProcess] return f(get_current_context(), *args, **kwargs)
+[2024-09-11 19:36:43,694: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/base.py", line 135, in caller
+[2024-09-11 19:36:43,696: WARNING/MainProcess]     
+[2024-09-11 19:36:43,697: WARNING/MainProcess] return f(ctx, *args, **kwargs)
+[2024-09-11 19:36:43,698: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/beat.py", line 72, in beat
+[2024-09-11 19:36:43,699: WARNING/MainProcess]     
+[2024-09-11 19:36:43,701: WARNING/MainProcess] return beat().run()
+[2024-09-11 19:36:43,702: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 84, in run
+[2024-09-11 19:36:43,703: WARNING/MainProcess]     
+[2024-09-11 19:36:43,704: WARNING/MainProcess] self.start_scheduler()
+[2024-09-11 19:36:43,705: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 113, in start_scheduler
+[2024-09-11 19:36:43,708: WARNING/MainProcess]     
+[2024-09-11 19:36:43,710: WARNING/MainProcess] service.start()
+[2024-09-11 19:36:43,711: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 634, in start
+[2024-09-11 19:36:43,713: WARNING/MainProcess]     
+[2024-09-11 19:36:43,715: WARNING/MainProcess] humanize_seconds(self.scheduler.max_interval))
+[2024-09-11 19:36:43,717: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/kombu/utils/objects.py", line 40, in __get__
+[2024-09-11 19:36:43,719: WARNING/MainProcess]     
+[2024-09-11 19:36:43,722: WARNING/MainProcess] return super().__get__(instance, owner)
+[2024-09-11 19:36:43,723: WARNING/MainProcess]   File "/usr/local/lib/python3.10/functools.py", line 981, in __get__
+[2024-09-11 19:36:43,726: WARNING/MainProcess]     
+[2024-09-11 19:36:43,727: WARNING/MainProcess] val = self.func(instance)
+[2024-09-11 19:36:43,729: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 677, in scheduler
+[2024-09-11 19:36:43,731: WARNING/MainProcess]     
+[2024-09-11 19:36:43,732: WARNING/MainProcess] return self.get_scheduler()
+[2024-09-11 19:36:43,733: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 668, in get_scheduler
+[2024-09-11 19:36:43,734: WARNING/MainProcess]     
+[2024-09-11 19:36:43,736: WARNING/MainProcess] return symbol_by_name(self.scheduler_cls, aliases=aliases)(
+[2024-09-11 19:36:43,737: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 233, in __init__
+[2024-09-11 19:36:43,739: WARNING/MainProcess]     
+[2024-09-11 19:36:43,741: WARNING/MainProcess] Scheduler.__init__(self, *args, **kwargs)
+[2024-09-11 19:36:43,742: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 264, in __init__
+[2024-09-11 19:36:43,743: WARNING/MainProcess]     
+[2024-09-11 19:36:43,744: WARNING/MainProcess] self.setup_schedule()
+[2024-09-11 19:36:43,746: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 241, in setup_schedule
+[2024-09-11 19:36:43,747: WARNING/MainProcess]     
+[2024-09-11 19:36:43,748: WARNING/MainProcess] self.install_default_entries(self.schedule)
+[2024-09-11 19:36:43,749: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 363, in schedule
+[2024-09-11 19:36:43,750: WARNING/MainProcess]     
+[2024-09-11 19:36:43,751: WARNING/MainProcess] self._schedule = self.all_as_schedule()
+[2024-09-11 19:36:43,752: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 247, in all_as_schedule
+[2024-09-11 19:36:43,753: WARNING/MainProcess]     
+[2024-09-11 19:36:43,754: WARNING/MainProcess] for model in self.Model.objects.enabled():
+[2024-09-11 19:36:43,756: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 400, in __iter__
+[2024-09-11 19:36:43,762: WARNING/MainProcess]     
+[2024-09-11 19:36:43,763: WARNING/MainProcess] self._fetch_all()
+[2024-09-11 19:36:43,764: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+[2024-09-11 19:36:43,765: WARNING/MainProcess]     
+[2024-09-11 19:36:43,767: WARNING/MainProcess] self._result_cache = list(self._iterable_class(self))
+[2024-09-11 19:36:43,768: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+[2024-09-11 19:36:43,769: WARNING/MainProcess]     
+[2024-09-11 19:36:43,770: WARNING/MainProcess] results = compiler.execute_sql(
+[2024-09-11 19:36:43,772: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1572, in execute_sql
+[2024-09-11 19:36:43,774: WARNING/MainProcess]     
+[2024-09-11 19:36:43,775: WARNING/MainProcess] cursor = self.connection.cursor()
+[2024-09-11 19:36:43,776: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:43,777: WARNING/MainProcess]     
+[2024-09-11 19:36:43,778: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:43,780: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[2024-09-11 19:36:43,781: WARNING/MainProcess]     
+[2024-09-11 19:36:43,782: WARNING/MainProcess] return self._cursor()
+[2024-09-11 19:36:43,783: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[2024-09-11 19:36:43,784: WARNING/MainProcess]     
+[2024-09-11 19:36:43,785: WARNING/MainProcess] self.ensure_connection()
+[2024-09-11 19:36:43,786: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:43,787: WARNING/MainProcess]     
+[2024-09-11 19:36:43,789: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:43,790: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[2024-09-11 19:36:43,791: WARNING/MainProcess]     
+[2024-09-11 19:36:43,792: WARNING/MainProcess] with self.wrap_database_errors:
+[2024-09-11 19:36:43,793: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+[2024-09-11 19:36:43,794: WARNING/MainProcess]     
+[2024-09-11 19:36:43,795: WARNING/MainProcess] raise dj_exc_value.with_traceback(traceback) from exc_value
+[2024-09-11 19:36:43,795: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[2024-09-11 19:36:43,796: WARNING/MainProcess]     
+[2024-09-11 19:36:43,797: WARNING/MainProcess] self.connect()
+[2024-09-11 19:36:43,798: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:43,799: WARNING/MainProcess]     
+[2024-09-11 19:36:43,800: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:43,800: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+[2024-09-11 19:36:43,801: WARNING/MainProcess]     
+[2024-09-11 19:36:43,802: WARNING/MainProcess] self.connection = self.get_new_connection(conn_params)
+[2024-09-11 19:36:43,803: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:43,804: WARNING/MainProcess]     
+[2024-09-11 19:36:43,805: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:43,806: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[2024-09-11 19:36:43,807: WARNING/MainProcess]     
+[2024-09-11 19:36:43,807: WARNING/MainProcess] connection = self.Database.connect(**conn_params)
+[2024-09-11 19:36:43,808: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+[2024-09-11 19:36:43,809: WARNING/MainProcess]     
+[2024-09-11 19:36:43,810: WARNING/MainProcess] conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+[2024-09-11 19:36:43,811: WARNING/MainProcess] django.db.utils
+[2024-09-11 19:36:43,812: WARNING/MainProcess] .
+[2024-09-11 19:36:43,813: WARNING/MainProcess] OperationalError
+[2024-09-11 19:36:43,813: WARNING/MainProcess] : 
+[2024-09-11 19:36:43,814: WARNING/MainProcess] connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up
+[2024-09-11 19:36:51,632: INFO/MainProcess] beat: Starting...
+[2024-09-11 19:36:51,645: CRITICAL/MainProcess] beat raised exception <class 'django.db.utils.OperationalError'>: OperationalError('connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up\n')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 113, in start_scheduler
+    service.start()
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 634, in start
+    humanize_seconds(self.scheduler.max_interval))
+  File "/usr/local/lib/python3.10/site-packages/kombu/utils/objects.py", line 40, in __get__
+    return super().__get__(instance, owner)
+  File "/usr/local/lib/python3.10/functools.py", line 981, in __get__
+    val = self.func(instance)
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 677, in scheduler
+    return self.get_scheduler()
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 668, in get_scheduler
+    return symbol_by_name(self.scheduler_cls, aliases=aliases)(
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 233, in __init__
+    Scheduler.__init__(self, *args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 264, in __init__
+    self.setup_schedule()
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 241, in setup_schedule
+    self.install_default_entries(self.schedule)
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 363, in schedule
+    self._schedule = self.all_as_schedule()
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 247, in all_as_schedule
+    for model in self.Model.objects.enabled():
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1572, in execute_sql
+    cursor = self.connection.cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 320, in cursor
+    return self._cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+    self.ensure_connection()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+    with self.wrap_database_errors:
+  File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+django.db.utils.OperationalError: connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up
+
+[2024-09-11 19:36:51,658: WARNING/MainProcess] Traceback (most recent call last):
+[2024-09-11 19:36:51,661: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[2024-09-11 19:36:51,663: WARNING/MainProcess]     
+[2024-09-11 19:36:51,664: WARNING/MainProcess] self.connect()
+[2024-09-11 19:36:51,677: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:51,679: WARNING/MainProcess]     
+[2024-09-11 19:36:51,680: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:51,681: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+[2024-09-11 19:36:51,683: WARNING/MainProcess]     
+[2024-09-11 19:36:51,684: WARNING/MainProcess] self.connection = self.get_new_connection(conn_params)
+[2024-09-11 19:36:51,685: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:51,686: WARNING/MainProcess]     
+[2024-09-11 19:36:51,688: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:51,689: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[2024-09-11 19:36:51,690: WARNING/MainProcess]     
+[2024-09-11 19:36:51,691: WARNING/MainProcess] connection = self.Database.connect(**conn_params)
+[2024-09-11 19:36:51,692: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+[2024-09-11 19:36:51,693: WARNING/MainProcess]     
+[2024-09-11 19:36:51,695: WARNING/MainProcess] conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+[2024-09-11 19:36:51,696: WARNING/MainProcess] psycopg2
+[2024-09-11 19:36:51,696: WARNING/MainProcess] .
+[2024-09-11 19:36:51,697: WARNING/MainProcess] OperationalError
+[2024-09-11 19:36:51,698: WARNING/MainProcess] : 
+[2024-09-11 19:36:51,700: WARNING/MainProcess] connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up
+[2024-09-11 19:36:51,710: WARNING/MainProcess] 
+The above exception was the direct cause of the following exception:
+[2024-09-11 19:36:51,711: WARNING/MainProcess] Traceback (most recent call last):
+[2024-09-11 19:36:51,712: WARNING/MainProcess]   File "/usr/local/bin/celery", line 8, in <module>
+[2024-09-11 19:36:51,713: WARNING/MainProcess]     
+[2024-09-11 19:36:51,715: WARNING/MainProcess] sys.exit(main())
+[2024-09-11 19:36:51,716: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/__main__.py", line 15, in main
+[2024-09-11 19:36:51,717: WARNING/MainProcess]     
+[2024-09-11 19:36:51,718: WARNING/MainProcess] sys.exit(_main())
+[2024-09-11 19:36:51,719: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/celery.py", line 236, in main
+[2024-09-11 19:36:51,720: WARNING/MainProcess]     
+[2024-09-11 19:36:51,721: WARNING/MainProcess] return celery(auto_envvar_prefix="CELERY")
+[2024-09-11 19:36:51,723: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+[2024-09-11 19:36:51,724: WARNING/MainProcess]     
+[2024-09-11 19:36:51,725: WARNING/MainProcess] return self.main(*args, **kwargs)
+[2024-09-11 19:36:51,726: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1078, in main
+[2024-09-11 19:36:51,728: WARNING/MainProcess]     
+[2024-09-11 19:36:51,747: WARNING/MainProcess] rv = self.invoke(ctx)
+[2024-09-11 19:36:51,749: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1688, in invoke
+[2024-09-11 19:36:51,751: WARNING/MainProcess]     
+[2024-09-11 19:36:51,752: WARNING/MainProcess] return _process_result(sub_ctx.command.invoke(sub_ctx))
+[2024-09-11 19:36:51,753: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+[2024-09-11 19:36:51,764: WARNING/MainProcess]     
+[2024-09-11 19:36:51,765: WARNING/MainProcess] return ctx.invoke(self.callback, **ctx.params)
+[2024-09-11 19:36:51,766: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+[2024-09-11 19:36:51,779: WARNING/MainProcess]     
+[2024-09-11 19:36:51,780: WARNING/MainProcess] return __callback(*args, **kwargs)
+[2024-09-11 19:36:51,781: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/click/decorators.py", line 33, in new_func
+[2024-09-11 19:36:51,797: WARNING/MainProcess]     
+[2024-09-11 19:36:51,799: WARNING/MainProcess] return f(get_current_context(), *args, **kwargs)
+[2024-09-11 19:36:51,801: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/base.py", line 135, in caller
+[2024-09-11 19:36:51,814: WARNING/MainProcess]     
+[2024-09-11 19:36:51,816: WARNING/MainProcess] return f(ctx, *args, **kwargs)
+[2024-09-11 19:36:51,818: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/bin/beat.py", line 72, in beat
+[2024-09-11 19:36:51,820: WARNING/MainProcess]     
+[2024-09-11 19:36:51,821: WARNING/MainProcess] return beat().run()
+[2024-09-11 19:36:51,826: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 84, in run
+[2024-09-11 19:36:51,834: WARNING/MainProcess]     
+[2024-09-11 19:36:51,835: WARNING/MainProcess] self.start_scheduler()
+[2024-09-11 19:36:51,837: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/apps/beat.py", line 113, in start_scheduler
+[2024-09-11 19:36:51,849: WARNING/MainProcess]     
+[2024-09-11 19:36:51,851: WARNING/MainProcess] service.start()
+[2024-09-11 19:36:51,852: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 634, in start
+[2024-09-11 19:36:51,865: WARNING/MainProcess]     
+[2024-09-11 19:36:51,867: WARNING/MainProcess] humanize_seconds(self.scheduler.max_interval))
+[2024-09-11 19:36:51,869: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/kombu/utils/objects.py", line 40, in __get__
+[2024-09-11 19:36:51,870: WARNING/MainProcess]     
+[2024-09-11 19:36:51,872: WARNING/MainProcess] return super().__get__(instance, owner)
+[2024-09-11 19:36:51,885: WARNING/MainProcess]   File "/usr/local/lib/python3.10/functools.py", line 981, in __get__
+[2024-09-11 19:36:51,886: WARNING/MainProcess]     
+[2024-09-11 19:36:51,887: WARNING/MainProcess] val = self.func(instance)
+[2024-09-11 19:36:51,888: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 677, in scheduler
+[2024-09-11 19:36:51,889: WARNING/MainProcess]     
+[2024-09-11 19:36:51,890: WARNING/MainProcess] return self.get_scheduler()
+[2024-09-11 19:36:51,901: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 668, in get_scheduler
+[2024-09-11 19:36:51,902: WARNING/MainProcess]     
+[2024-09-11 19:36:51,903: WARNING/MainProcess] return symbol_by_name(self.scheduler_cls, aliases=aliases)(
+[2024-09-11 19:36:51,916: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 233, in __init__
+[2024-09-11 19:36:51,917: WARNING/MainProcess]     
+[2024-09-11 19:36:51,918: WARNING/MainProcess] Scheduler.__init__(self, *args, **kwargs)
+[2024-09-11 19:36:51,919: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/celery/beat.py", line 264, in __init__
+[2024-09-11 19:36:51,920: WARNING/MainProcess]     
+[2024-09-11 19:36:51,922: WARNING/MainProcess] self.setup_schedule()
+[2024-09-11 19:36:51,932: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 241, in setup_schedule
+[2024-09-11 19:36:51,934: WARNING/MainProcess]     
+[2024-09-11 19:36:51,935: WARNING/MainProcess] self.install_default_entries(self.schedule)
+[2024-09-11 19:36:51,947: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 363, in schedule
+[2024-09-11 19:36:51,949: WARNING/MainProcess]     
+[2024-09-11 19:36:51,950: WARNING/MainProcess] self._schedule = self.all_as_schedule()
+[2024-09-11 19:36:51,952: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 247, in all_as_schedule
+[2024-09-11 19:36:51,953: WARNING/MainProcess]     
+[2024-09-11 19:36:51,954: WARNING/MainProcess] for model in self.Model.objects.enabled():
+[2024-09-11 19:36:51,965: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 400, in __iter__
+[2024-09-11 19:36:51,967: WARNING/MainProcess]     
+[2024-09-11 19:36:51,968: WARNING/MainProcess] self._fetch_all()
+[2024-09-11 19:36:51,969: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+[2024-09-11 19:36:51,971: WARNING/MainProcess]     
+[2024-09-11 19:36:51,972: WARNING/MainProcess] self._result_cache = list(self._iterable_class(self))
+[2024-09-11 19:36:51,981: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+[2024-09-11 19:36:51,983: WARNING/MainProcess]     
+[2024-09-11 19:36:51,984: WARNING/MainProcess] results = compiler.execute_sql(
+[2024-09-11 19:36:51,985: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1572, in execute_sql
+[2024-09-11 19:36:51,987: WARNING/MainProcess]     
+[2024-09-11 19:36:51,989: WARNING/MainProcess] cursor = self.connection.cursor()
+[2024-09-11 19:36:51,990: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:51,991: WARNING/MainProcess]     
+[2024-09-11 19:36:51,993: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:51,994: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[2024-09-11 19:36:51,995: WARNING/MainProcess]     
+[2024-09-11 19:36:51,996: WARNING/MainProcess] return self._cursor()
+[2024-09-11 19:36:51,997: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[2024-09-11 19:36:51,998: WARNING/MainProcess]     
+[2024-09-11 19:36:52,001: WARNING/MainProcess] self.ensure_connection()
+[2024-09-11 19:36:52,003: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:52,004: WARNING/MainProcess]     
+[2024-09-11 19:36:52,005: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:52,006: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[2024-09-11 19:36:52,008: WARNING/MainProcess]     
+[2024-09-11 19:36:52,009: WARNING/MainProcess] with self.wrap_database_errors:
+[2024-09-11 19:36:52,010: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+[2024-09-11 19:36:52,011: WARNING/MainProcess]     
+[2024-09-11 19:36:52,012: WARNING/MainProcess] raise dj_exc_value.with_traceback(traceback) from exc_value
+[2024-09-11 19:36:52,013: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[2024-09-11 19:36:52,014: WARNING/MainProcess]     
+[2024-09-11 19:36:52,015: WARNING/MainProcess] self.connect()
+[2024-09-11 19:36:52,016: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:52,018: WARNING/MainProcess]     
+[2024-09-11 19:36:52,020: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:52,021: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+[2024-09-11 19:36:52,023: WARNING/MainProcess]     
+[2024-09-11 19:36:52,024: WARNING/MainProcess] self.connection = self.get_new_connection(conn_params)
+[2024-09-11 19:36:52,026: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+[2024-09-11 19:36:52,027: WARNING/MainProcess]     
+[2024-09-11 19:36:52,029: WARNING/MainProcess] return func(*args, **kwargs)
+[2024-09-11 19:36:52,030: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[2024-09-11 19:36:52,032: WARNING/MainProcess]     
+[2024-09-11 19:36:52,033: WARNING/MainProcess] connection = self.Database.connect(**conn_params)
+[2024-09-11 19:36:52,034: WARNING/MainProcess]   File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+[2024-09-11 19:36:52,036: WARNING/MainProcess]     
+[2024-09-11 19:36:52,037: WARNING/MainProcess] conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+[2024-09-11 19:36:52,039: WARNING/MainProcess] django.db.utils
+[2024-09-11 19:36:52,040: WARNING/MainProcess] .
+[2024-09-11 19:36:52,041: WARNING/MainProcess] OperationalError
+[2024-09-11 19:36:52,042: WARNING/MainProcess] : 
+[2024-09-11 19:36:52,043: WARNING/MainProcess] connection to server at "db" (10.0.1.2), port 5432 failed: FATAL:  the database system is starting up
+[2024-09-11 19:36:59,744: INFO/MainProcess] beat: Starting...
+[2024-09-11 19:38:51,962: ERROR/MainProcess] Database gave error: OperationalError('connection to server at "db" (10.0.1.2), port 5432 failed: Connection refused\n\tIs the server running on that host and accepting TCP/IP connections?\n')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: connection to server at "db" (10.0.1.2), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 267, in schedule_changed
+    last, ts = self._last_timestamp, self.Changes.last_change()
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/models.py", line 419, in last_change
+    return cls.objects.get(ident=1).last_update
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 645, in get
+    num = len(clone)
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1572, in execute_sql
+    cursor = self.connection.cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 320, in cursor
+    return self._cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+    self.ensure_connection()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+    with self.wrap_database_errors:
+  File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+django.db.utils.OperationalError: connection to server at "db" (10.0.1.2), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+[2024-09-11 19:39:00,281: ERROR/MainProcess] Database gave error: OperationalError('could not translate host name "db" to address: Name or service not known\n')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: could not translate host name "db" to address: Name or service not known
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/schedulers.py", line 267, in schedule_changed
+    last, ts = self._last_timestamp, self.Changes.last_change()
+  File "/usr/local/lib/python3.10/site-packages/django_celery_beat/models.py", line 419, in last_change
+    return cls.objects.get(ident=1).last_update
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 645, in get
+    num = len(clone)
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1572, in execute_sql
+    cursor = self.connection.cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 320, in cursor
+    return self._cursor()
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+    self.ensure_connection()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+    with self.wrap_database_errors:
+  File "/usr/local/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/base/base.py", line 256, in connect
+    self.connection = self.get_new_connection(conn_params)
+  File "/usr/local/lib/python3.10/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+    connection = self.Database.connect(**conn_params)
+  File "/usr/local/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+django.db.utils.OperationalError: could not translate host name "db" to address: Name or service not known
+
