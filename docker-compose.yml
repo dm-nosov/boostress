@@ -43,7 +43,7 @@ services:
       - ./static:/app/static
     environment:
       - VIRTUAL_HOST=localhost
-    entrypoint: ["/app/add_env_vars.sh"]
+    entrypoint: ["/app/conf/nginx/add_env_vars.sh"]
     command: ["nginx", "-g", "daemon off;"]
     ports:
       - "1080:80"
