@@ -37,7 +37,7 @@ services:
     image: nginx:latest
     hostname: nginx
     volumes:
-      - ./conf/nginx/add_env_vars.sh:/app/add_env_vars.sh
+      - ./conf/nginx/add_env_vars.sh:/app/conf/nginx/add_env_vars.sh
       - ./logs/nginx:/var/log/nginx
       - ./conf/nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
       - ./static:/app/static
@@ -59,7 +59,7 @@ services:
 
   scheduler:
     image: django-app
-    command: /app/conf/celery/scheduler_launch.sh
+    command: ["/app/conf/celery/scheduler_launch.sh"]
     environment:
       - DJANGO_DEBUG=False
       - POSTGRES_DB=boostress
@@ -75,7 +75,7 @@ services:
 
   worker:
     image: django-app
-    command: /app/conf/celery/worker_launch.sh
+    command: ["/app/conf/celery/worker_launch.sh"]
     environment:
       - DJANGO_DEBUG=False
       - POSTGRES_DB=boostress
