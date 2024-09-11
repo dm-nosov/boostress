@@ -25,6 +25,8 @@ RUN pip install --upgrade pip \
 # Copy project files
 COPY . /app/
 
+RUN python manage.py collectstatic --noinput
+
 RUN pip install uwsgi
 
 # Prepare the migration script on run
@@ -36,8 +38,6 @@ RUN chown -R django:django /app
 
 # Switch to non-root user
 USER django
-
-RUN python manage.py collectstatic --noinput
 
 # Configure uWSGI
 COPY conf/uwsgi/uwsgi.ini /app/
