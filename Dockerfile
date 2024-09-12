@@ -29,10 +29,8 @@ RUN python manage.py collectstatic --noinput
 
 RUN pip install uwsgi
 
-# Prepare the migration script on run
-RUN chmod +x /app/conf/django_launch/launch_tasks.sh
-RUN chmod +x /app/conf/celery/scheduler_launch.sh
-RUN chmod +x /app/conf/celery/worker_launch.sh
+# Prepare the scripts on run
+RUN find /app/conf -name "*.sh" -type f -exec chmod +x {} +
 
 RUN chown -R django:django /app
 
