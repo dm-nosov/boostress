@@ -31,6 +31,8 @@ RUN pip install uwsgi
 
 # Prepare the scripts on run
 RUN find /app/conf -name "*.sh" -type f -exec chmod +x {} +
+RUN find /app/logs -name "*.log" -type f -exec chmod +w {} +
+
 
 RUN chown -R django:django /app
 
