@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Function to safely read and clean secret
 read_secret() {
