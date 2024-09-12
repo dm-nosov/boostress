@@ -57,7 +57,7 @@ services:
 
   scheduler:
     image: ghcr.io/dm-nosov/boostress/boostress:latest
-    command: ["/bin/bash", "-c", "/app/conf/celery/scheduler_launch.sh"]
+    command: ["/app/conf/celery/scheduler_launch.sh"]
     environment:
       - DJANGO_DEBUG=False
       - POSTGRES_DB=boostress
@@ -65,15 +65,14 @@ services:
     secrets:
       - postgres_password
     volumes:
-      - ./logs/celery/scheduler.log:/app/logs/celery/scheduler.log
-      - ./conf:/app/conf
+      - ./logs/celery_scheduler:/app/logs/celery
     depends_on:
       - message_broker
       - db
 
   worker:
     image: ghcr.io/dm-nosov/boostress/boostress:latest
-    command: ["/bin/bash", "-c", "/app/conf/celery/worker_launch.sh"]
+    command: ["/app/conf/celery/worker_launch.sh"]
     environment:
       - DJANGO_DEBUG=False
       - POSTGRES_DB=boostress
@@ -81,8 +80,7 @@ services:
     secrets:
       - postgres_password
     volumes:
-      - ./logs/celery/worker.log:/app/logs/celery/worker.log
-      - ./conf:/app/conf
+      - ./logs/celery_worker:/app/logs/celery
     depends_on:
       - message_broker
       - db
