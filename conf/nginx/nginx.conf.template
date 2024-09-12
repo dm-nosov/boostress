@@ -22,12 +22,8 @@ server {
     }
 
     location /static/ {
-            alias /app/static/;
+            alias /var/www/static/;
         }
-
-    location /media/ {
-        alias /app/media/;
-    }
 
 }
 

@@ -18,8 +18,8 @@ services:
       - db
       - message_broker
     volumes:
-      - .:/app
-      - ./logs/django/django_debug.log:/app/logs/django/django_debug.log
+      - ./logs:/app/logs
+      - static_files:/app/static
 
   db:
     image: postgres:15-alpine
@@ -37,10 +37,10 @@ services:
     image: nginx:latest
     hostname: nginx
     volumes:
-      - ./conf/nginx/add_env_vars.sh:/app/conf/nginx/add_env_vars.sh
+      - ./conf/nginx:/app/conf/nginx
       - ./logs/nginx:/var/log/nginx
       - ./conf/nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
-      - ./static:/app/static
+      - static_files:/var/www/static
     environment:
       - VIRTUAL_HOST=localhost
     entrypoint: ["/app/conf/nginx/add_env_vars.sh"]
@@ -70,7 +70,7 @@ services:
       - ./logs:/app/logs
       - ./conf:/app/conf
     depends_on:
-      - redis
+      - message_broker
       - db
 
   worker:
@@ -86,7 +86,7 @@ services:
       - ./logs:/app/logs
       - ./conf:/app/conf
     depends_on:
-      - redis
+      - message_broker
       - db
 
 secrets:
@@ -96,3 +96,6 @@ secrets:
     external: true
   admin_password:
     external: true
+
+volumes:
+  static_files:
