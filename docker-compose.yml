@@ -31,8 +31,6 @@ services:
       - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
     secrets:
       - postgres_password
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
 
   nginx:
     image: nginx:latest
