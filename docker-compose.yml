@@ -1,6 +1,6 @@
 services:
   web:
-    image: django-app
+    image: ghcr.io/dm-nosov/boostress/boostress:latest
     hostname: web
     environment:
       - DJANGO_DEBUG=False
@@ -40,6 +40,7 @@ services:
     volumes:
       - ./logs/nginx:/var/log/nginx
       - conf_files:/app/conf
+      - static_files:/var/www/static
     environment:
       - VIRTUAL_HOST=localhost
     entrypoint: ["/app/conf/nginx/add_env_vars.sh"]
@@ -57,7 +58,7 @@ services:
       - "6379:6379"
 
   scheduler:
-    image: django-app
+    image: ghcr.io/dm-nosov/boostress/boostress:latest
     command: ["/app/conf/celery/scheduler_launch.sh"]
     environment:
       - DJANGO_DEBUG=False
@@ -72,7 +73,7 @@ services:
       - db
 
   worker:
-    image: django-app
+    image: ghcr.io/dm-nosov/boostress/boostress:latest
     command: ["/app/conf/celery/worker_launch.sh"]
     environment:
       - DJANGO_DEBUG=False
