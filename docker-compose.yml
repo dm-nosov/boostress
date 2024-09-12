@@ -20,6 +20,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - static_files:/app/static
+      - conf_files:/app/conf
 
   db:
     image: postgres:15-alpine
@@ -37,10 +38,8 @@ services:
     image: nginx:latest
     hostname: nginx
     volumes:
-      - ./conf/nginx:/app/conf/nginx
       - ./logs/nginx:/var/log/nginx
-      - ./conf/nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
-      - static_files:/var/www/static
+      - conf_files:/app/conf
     environment:
       - VIRTUAL_HOST=localhost
     entrypoint: ["/app/conf/nginx/add_env_vars.sh"]
@@ -68,7 +67,6 @@ services:
       - postgres_password
     volumes:
       - ./logs:/app/logs
-      - ./conf:/app/conf
     depends_on:
       - message_broker
       - db
@@ -84,7 +82,6 @@ services:
       - postgres_password
     volumes:
       - ./logs:/app/logs
-      - ./conf:/app/conf
     depends_on:
       - message_broker
       - db
@@ -99,3 +96,4 @@ secrets:
 
 volumes:
   static_files:
+  conf_files:

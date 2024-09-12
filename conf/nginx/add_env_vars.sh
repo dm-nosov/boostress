@@ -5,7 +5,7 @@ TEMP_DIR=$(mktemp -d)
 TEMP_FILE="$TEMP_DIR/nginx.conf"
 
 # Copy template to temp location
-cp /etc/nginx/nginx.conf.template "$TEMP_FILE"
+cp /app/conf/nginx/nginx.conf.template "$TEMP_FILE"
 
 # Perform find-and-replace using sed
 sed -i "s/{{VIRTUAL_HOST}}/${VIRTUAL_HOST}/g" "$TEMP_FILE"
