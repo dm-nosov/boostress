@@ -32,6 +32,6 @@ jobs:
         docker tag ghcr.io/${{ github.repository }}/boostress:${{ github.event.release.tag_name }} ghcr.io/${{ github.repository }}/boostress:${{ github.sha }}
 
         # Push the images with all tags
-        docker push ghcr.io/${{ github.repository }}/your_app:${{ github.event.release.tag_name }}
-        docker push ghcr.io/${{ github.repository }}/your_app:latest
-        docker push ghcr.io/${{ github.repository }}/your_app:${{ github.sha }}
+        docker push ghcr.io/${{ github.repository }}/boostress:${{ github.event.release.tag_name }}
+        docker push ghcr.io/${{ github.repository }}/boostress:latest
+        docker push ghcr.io/${{ github.repository }}/boostress:${{ github.sha }}
