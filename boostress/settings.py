@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
-import socket
 from django.core.management.utils import get_random_secret_key
 
 DB_PASSWORD = ""
@@ -158,8 +157,6 @@ if DEBUG:
 
 CELERY_TIMEZONE = 'UTC'
 
-NODE_NAME = socket.gethostname()
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -167,7 +164,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django' / 'django_debug_{}.log'.format(NODE_NAME),
+            'filename': BASE_DIR / 'logs' / 'django' / 'django_debug.log',
         },
     },
     'loggers': {
