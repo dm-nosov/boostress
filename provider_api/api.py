@@ -1,7 +1,9 @@
 import logging
 import time
+from datetime import timedelta
 
 import requests
+from celery.utils.time import timezone
 
 from campaign_manager.models import Provider, ServiceTask, Status, PlatformService
 
@@ -19,6 +21,9 @@ class ProviderApi:
         for order_id in actual_statuses:
             task = ServiceTask.objects.filter(ext_order_id=order_id).first()
             task.status = Status(actual_statuses[order_id]['status'])
+            if task.status == Status.COMPLETED and timezone.now() < task.updated + timedelta(
+                    minutes=task.pre_complete_minutes):
+                continue
             task.save()
 
     @staticmethod
@@ -44,9 +49,9 @@ class ProviderApi:
         r = requests.post(provider.api_url, json=packet)
         order_response = r.json()
 
-        if "error" in order_response:
-            logging.error("Provider: {0}, Error happened: {1}".format(provider.name, order_response["error"]))
-            raise Exception(order_response["error"])
+        if "order" not in order_response:
+            logging.error("Provider: {0}, Error happened: {1}".format(provider.name, order_response))
+            raise Exception(order_response)
 
         # TODO: Rework to Celery chain
         time.sleep(5)
@@ -57,8 +62,7 @@ class ProviderApi:
                                                   })
         order_status = r.json()
 
-        if "error" in order_status:
-            logging.error("Provider: {0}, Error happened: {1}".format(provider.name, order_status["error"]))
-            raise Exception(order_response["error"])
+        if "status" not in order_status:
+            raise Exception(order_response)
 
         return order_response["order"], float(order_status["charge"])

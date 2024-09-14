@@ -14,6 +14,7 @@ class Status(models.TextChoices):
     COMPLETED = 'Completed', 'completed'
     PARTIAL = 'Partial', 'in_progress'
     CANCELED = 'Canceled', 'completed'
+    PRE_COMPLETE = 'Pre_complete', 'pre_complete'
 
 
 class Provider(models.Model):
@@ -59,6 +60,7 @@ class ProviderPlatform(models.Model):
     class Name(models.TextChoices):
         LINKEDIN = 'ln', 'linkedin'
         TIKTOK = 'tt', 'tiktok'
+        TELEGRAM = 'tg', 'telegram'
         INSTAGRAM = 'ig', 'instagram'
 
     name = models.CharField(max_length=20, choices=Name.choices, default=Name.LINKEDIN)
@@ -70,7 +72,8 @@ class ProviderPlatform(models.Model):
 class PlatformServiceManager(models.Manager):
 
     def get_providers_by_platform(self, platform, link_type):
-        provider_ids = self.filter(platform=platform).prefetch_related('provider').distinct().values_list('provider', flat=True)
+        provider_ids = self.filter(platform=platform).prefetch_related('provider').distinct().values_list('provider',
+                                                                                                          flat=True)
         return [Provider.objects.get(pk=provider_id) for provider_id in provider_ids]
 
 
@@ -84,6 +87,8 @@ class PlatformService(models.Model):
     max = models.IntegerField(default=1)
     comfort_value = models.IntegerField(default=0)
     comfort_interval = models.IntegerField(default=10)
+    pre_complete_minutes = models.IntegerField(default=48 * 60,
+                                               help_text="Duration in minutes before running the next task of the same type. Default is 48 hours.")
     objects = PlatformServiceManager()
 
     def __str__(self):
@@ -98,7 +103,9 @@ class Order(models.Model):
     platform = models.ForeignKey(ProviderPlatform, on_delete=models.CASCADE)
     spent = models.FloatField(default=0.0)
     budget = models.FloatField(default=5)
+    deadline = models.IntegerField(default=48 * 60)
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

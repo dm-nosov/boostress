@@ -1,7 +1,9 @@
 import logging
 import random
+from datetime import timedelta
 
 from celery import shared_task
+from django.utils import timezone
 
 from boostress.utils import time_difference_min, get_order_amount, get_num_times, get_interval
 from campaign_manager.models import Order, Status, ServiceTask, Provider, ProviderPlatform, LinkType, PlatformService
@@ -16,9 +18,13 @@ def process_order(self, order_id):
     link_type = active_order.link_type
     link = active_order.link
 
+    if timezone.now() > timedelta(minutes=active_order.deadline) + active_order.updated:
+        active_order.status = Status.COMPLETED
+        active_order.save()
+        return {"result": "Order {} is complete by time, please pause the task".format(active_order.id)}
+
     if active_order.status == Status.COMPLETED:
-        logging.error("Order {} is complete, please pause the task {}".format(active_order.id, self.request.id))
-        return
+        return {"result": "Order {} is complete by status, please pause the task".format(active_order.id)}
 
     available_providers = PlatformService.objects.get_providers_by_platform(platform, link_type)
 
@@ -37,8 +43,7 @@ def process_order(self, order_id):
                 potential_providers.append((provider, random.choice(difference)))
 
     if not potential_providers:
-        logging.error("Existing the order {}, task {}, all providers are loaded".format(active_order.id, self.request.id))
-        return
+        return {"result": "Existing the order {}, all providers are loaded".format(active_order.id)}
 
     # Add a task
     provider, service_type_name = random.choice(potential_providers)
@@ -51,8 +56,10 @@ def process_order(self, order_id):
     qty = get_order_amount(service.min, service.max, time_diff_min)
     runs = get_num_times(qty, service.comfort_value)
     interval = get_interval(service.comfort_interval, time_diff_min)
-
-    ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty, runs, interval)
+    try:
+        ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty, runs, interval)
+    except Exception as exc:
+        return {"result": "Exception in provider API, result {}".format(exc)}
 
     active_order.spent += charged
 
@@ -61,6 +68,8 @@ def process_order(self, order_id):
 
     active_order.save()
 
-    ServiceTask.objects.create(provider=provider, platform=platform, service=service, link_type=link_type,
+    service_task = ServiceTask.objects.create(provider=provider, platform=platform, service=service, link_type=link_type,
                                order=active_order, link=active_order.link, ext_order_id=ext_order_id, spent=charged,
                                extras="qty={},runs={},interval={}".format(qty, runs, interval))
+
+    return {"result": "Existing the order {}, new service task {}".format(active_order.id, service_task.result.id)}
