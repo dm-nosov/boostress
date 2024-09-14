@@ -73,4 +73,4 @@ def process_order(self, order_id):
                                               spent=charged,
                                               extras="qty={},runs={},interval={}".format(qty, runs, interval))
 
-    return {"result": "Existing the order {}, new service task {}".format(active_order.id, service_task.result.id)}
+    return {"result": "Existing the order {}, new service task '{}'".format(active_order.id, service.service_type.name)}
