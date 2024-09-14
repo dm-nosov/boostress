@@ -55,7 +55,7 @@ location / {
     proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
-**NOTE**: Instead of using the frontier nginx, you can modify the docker-compose.yml, nginx description, changing `"1080:80"` port binding to `"0.0.0.0:1080:80"` so you can run http://localhost:1080 on your host machine. In this case please keep the localhost hostname.
+**NOTE**: Instead of using the frontier nginx, you can modify the [docker-compose.yml](https://github.com/dm-nosov/boostress/blob/master/docker-compose.yml), nginx description, changing `"1080:80"` port binding to `"0.0.0.0:1080:80"` so you can run http://localhost:1080 on your host machine. In this case please keep the localhost hostname.
 
 6. Replace 'localhost' with your desired external virtual host in docker-compose.yml
 ![image](https://github.com/user-attachments/assets/29e9d33a-aac1-4dd0-ac14-5ca14992ff3e)
