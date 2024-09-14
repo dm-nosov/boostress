@@ -65,7 +65,7 @@ location / {
    
 `docker stack deploy -c docker-compose.yml example`
 
-9. Run the admin http://your_virtual_host/admin and provide the admin credentials which you previously provided to Docker secrets.
+9. Run the admin `http://your_virtual_host/admin` and provide the admin credentials which you previously provided to Docker secrets.
 
 ## Implementation Notes
 
