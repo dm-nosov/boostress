@@ -57,7 +57,7 @@ location / {
 ```
 **NOTE**: Instead of using the frontier nginx, you can modify the docker-compose.xml, nginx description, changing `"1080:80"` port binding to `"0.0.0.0:1080:80"` so you can run http://localhost:1080 on your host machine. In this case please keep the localhost hostname.
 
-6. Replace the external hostname from localhost to your desired external virtual host in docker-compose.xml
+6. Replace 'localhost' with your desired external virtual host in docker-compose.xml
 ![image](https://github.com/user-attachments/assets/29e9d33a-aac1-4dd0-ac14-5ca14992ff3e)
 
 
@@ -70,9 +70,9 @@ location / {
 ## Implementation Notes
 
 - The app image is publicly available, you can use it instead of building yours.
-- The image does not contain any secret imformation in code or in the environment variables, so the deployment code is safe to share to public.
-- Docker swarm is flexible enough in case you want to scale for a single physical machine.
-- The code incapsulates the API implementation inside into the `provider_api`, so you can be easily modified without touching the business logic code.
-- The code uses model managers and model methods to clearly explain the business logic - which object does what - instead using ORM methods directly.
+- The image does not contain any secret imformation neither in code nor in the environment variables, so the deployment code is safe to share to public.
+- Docker swarm is flexible enough in case you want to scale from a single physical machine.
+- The code incapsulates the API implementation inside the `provider_api`, package, so you can be easily modify the API without touching the business logic code.
+- The code uses model managers and model methods to clearly explain the business logic (which object does what) instead using ORM methods directly.
 - The app integrates the default admin UI instead of creating custom views.
 - The scheduler and results are available directly from the admin UI.
