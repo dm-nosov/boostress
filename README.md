@@ -57,15 +57,15 @@ location / {
 ```
 **NOTE**: Instead of using the frontier nginx you can modify the docker-compose.xml, nginx description changing `"1080:80"` port binding to `"0.0.0.0:1080:80"` so you can run http://localhost:1080 on your host machine. In this case please keep the localhost hostname.
 
-7. Replace the external hostname from localhost to your desired external virtual host in docker-compose.xml
+6. Replace the external hostname from localhost to your desired external virtual host in docker-compose.xml
 ![image](https://github.com/user-attachments/assets/29e9d33a-aac1-4dd0-ac14-5ca14992ff3e)
 
 
-8. Deploy the stack to your swarm
+7. Deploy the stack to your swarm
    
 `docker stack deploy -c docker-compose.yml example`
 
-9. Run the admin `http://your_virtual_host/admin` and provide the admin credentials which you previously provided to Docker secrets.
+8. Run the admin `http://your_virtual_host/admin` and provide the admin credentials which you previously provided to Docker secrets.
 
 ## Implementation Notes
 
