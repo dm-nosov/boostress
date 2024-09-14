@@ -22,7 +22,7 @@ class ProviderApi:
             task = ServiceTask.objects.filter(ext_order_id=order_id).first()
             task.status = Status(actual_statuses[order_id]['status'])
             if task.status == Status.COMPLETED and timezone.now() < task.updated + timedelta(
-                    minutes=task.pre_complete_minutes):
+                    minutes=task.service.pre_complete_minutes):
                 continue
             task.save()
 
