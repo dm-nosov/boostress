@@ -69,10 +69,14 @@ location / {
 
 ## Implementation Notes
 
+- Using the shared volumes, nginx automatically receives the static files which the app provides during the build process.
+- DB migrations happen during a node startup which guarantees that everything is ready to a migration.
+- Secrets are updated on each startup, so that just restart the containers to apply the new ones. 
 - The app image is publicly available, you can use it instead of building yours.
-- The image does not contain any secret imformation neither in code nor in the environment variables, so the deployment code is safe to share to public.
+- The image does not contain any secret imformation neither in code nor in the environment variables, so that the deployment code is safe to share to public.
 - Docker swarm is flexible enough in case you want to scale from a single physical machine.
-- The code incapsulates the API implementation inside the `provider_api`, package, so you can be easily modify the API without touching the business logic code.
-- The code uses model managers and model methods to clearly explain the business logic (which object does what) instead using ORM methods directly.
+- The code incapsulates the API implementation inside the `provider_api` package, thus you can be easily modify the API without touching the business logic code.
+- The code uses model managers and model methods to clearly explain the business logic (object responsibilities) instead using ORM methods directly.
 - The app integrates the default admin UI instead of creating custom views.
 - The scheduler and results are available directly from the admin UI.
+  
