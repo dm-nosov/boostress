@@ -33,12 +33,6 @@ class Provider(models.Model):
     def get_active_tasks(self):
         return ",".join(list(self.tasks.exclude(status=Status.COMPLETED).values_list("ext_order_id", flat=True)))
 
-    def get_busy_services(self, platform, link_type, link):
-        return list(self.tasks.exclude(status=Status.COMPLETED).filter(platform=platform,
-                                                                       link_type=link_type,
-                                                                       link=link).values_list(
-            "service__service_type__name", flat=True).distinct())
-
 
 class ServiceType(models.Model):
     class Name(models.TextChoices):
@@ -111,6 +105,14 @@ class Order(models.Model):
         return self.name
 
 
+class ServiceTaskManager(models.Manager):
+    def get_busy_services(self, platform, link_type, link):
+        return list(self.exclude(status=Status.COMPLETED).filter(platform=platform,
+                                                                 link_type=link_type,
+                                                                 link=link).values_list(
+            "service__service_type__name", flat=True).distinct())
+
+
 class ServiceTask(models.Model):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, null=True, related_name="tasks")
@@ -124,6 +126,7 @@ class ServiceTask(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     extras = models.CharField(max_length=200, default="")
+    objects = ServiceTaskManager()
 
     def __str__(self):
         return "Task {0}".format(self.id)

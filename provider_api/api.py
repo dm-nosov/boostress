@@ -3,7 +3,7 @@ import time
 from datetime import timedelta
 
 import requests
-from celery.utils.time import timezone
+from django.utils import timezone
 
 from campaign_manager.models import Provider, ServiceTask, Status, PlatformService
 

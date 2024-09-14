@@ -12,24 +12,23 @@ from provider_api.api import ProviderApi
 
 @shared_task(bind=True)
 def process_order(self, order_id):
-
     active_order = Order.objects.get(pk=int(order_id))
     platform = active_order.platform
     link_type = active_order.link_type
     link = active_order.link
 
-    if timezone.now() > timedelta(minutes=active_order.deadline) + active_order.updated:
+    if (timezone.now() > timedelta(
+            minutes=active_order.deadline) + active_order.updated) and active_order.status == Status.PRE_COMPLETE:
         active_order.status = Status.COMPLETED
         active_order.save()
         return {"result": "Order {} is complete by time, please pause the task".format(active_order.id)}
-
-    if active_order.status == Status.COMPLETED:
-        return {"result": "Order {} is complete by status, please pause the task".format(active_order.id)}
 
     available_providers = PlatformService.objects.get_providers_by_platform(platform, link_type)
 
     # All providers which potentially provide the related services
     potential_providers = []
+
+    busy_services = ServiceTask.objects.get_busy_services(platform, link_type, link)
 
     for provider in available_providers:
 
@@ -37,7 +36,7 @@ def process_order(self, order_id):
 
         if available_services:
             ProviderApi.update_task_statuses(provider, provider.get_active_tasks())
-            busy_services = provider.get_busy_services(platform, link_type, link)
+
             difference = [item for item in available_services if item not in busy_services]
             if difference:
                 potential_providers.append((provider, random.choice(difference)))
@@ -63,13 +62,15 @@ def process_order(self, order_id):
 
     active_order.spent += charged
 
-    if abs(active_order.spent - active_order.budget) < 0.1:
-        active_order.status = Status.COMPLETED
+    if abs(active_order.spent - active_order.budget) < 0.01:
+        active_order.status = Status.PRE_COMPLETE
 
     active_order.save()
 
-    service_task = ServiceTask.objects.create(provider=provider, platform=platform, service=service, link_type=link_type,
-                               order=active_order, link=active_order.link, ext_order_id=ext_order_id, spent=charged,
-                               extras="qty={},runs={},interval={}".format(qty, runs, interval))
+    service_task = ServiceTask.objects.create(provider=provider, platform=platform, service=service,
+                                              link_type=link_type,
+                                              order=active_order, link=active_order.link, ext_order_id=ext_order_id,
+                                              spent=charged,
+                                              extras="qty={},runs={},interval={}".format(qty, runs, interval))
 
     return {"result": "Existing the order {}, new service task {}".format(active_order.id, service_task.result.id)}
