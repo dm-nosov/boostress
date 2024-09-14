@@ -1,7 +1,7 @@
-# Boostress - Distributed Orders Fullfilment System
+# Boostress - Distributed Orders Fulfillment System
 
 ## Description and Stack
-Boostress allows to fullfill, process and monitor distributed orders from different providers unified by a specific integration API.
+Boostress allows users to fulfill, process and monitor distributed orders from different providers unified by a specific integration API.
 
 Technical stack:
 - Python 3.10
@@ -55,9 +55,9 @@ location / {
     proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
-**NOTE**: Instead of using the frontier nginx, you can modify the docker-compose.xml, nginx description, changing `"1080:80"` port binding to `"0.0.0.0:1080:80"` so you can run http://localhost:1080 on your host machine. In this case please keep the localhost hostname.
+**NOTE**: Instead of using the frontier nginx, you can modify the docker-compose.yml, nginx description, changing `"1080:80"` port binding to `"0.0.0.0:1080:80"` so you can run http://localhost:1080 on your host machine. In this case please keep the localhost hostname.
 
-6. Replace 'localhost' with your desired external virtual host in docker-compose.xml
+6. Replace 'localhost' with your desired external virtual host in docker-compose.yml
 ![image](https://github.com/user-attachments/assets/29e9d33a-aac1-4dd0-ac14-5ca14992ff3e)
 
 
@@ -73,10 +73,10 @@ location / {
 - DB migrations happen during a node startup which guarantees that everything is ready to a migration.
 - Secrets are updated on each startup, so that just restart the containers to apply the new ones. 
 - The app image is publicly available, you can use it instead of building yours.
-- The image does not contain any secret imformation neither in code nor in the environment variables, so that the deployment code is safe to share to public.
+- The image does not contain any secret information neither in code nor in the environment variables, so that the deployment code is safe to share to public.
 - Docker swarm is flexible enough in case you want to scale from a single physical machine.
-- The code incapsulates the API implementation inside the `provider_api` package, thus you can be easily modify the API without touching the business logic code.
-- The code uses model managers and model methods to clearly explain the business logic (object responsibilities) instead using ORM methods directly.
+- The code encapsulates the API implementation inside the `provider_api` package, thus you can be easily modify the API without touching the business logic code.
+- The code uses model managers and model methods to clearly explain the business logic (object responsibilities) instead of using ORM methods directly.
 - The app integrates the default admin UI instead of creating custom views.
 - The scheduler and results are available directly from the admin UI.
   
