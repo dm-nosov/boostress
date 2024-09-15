@@ -10,6 +10,8 @@ services:
       - POSTGRES_USER=boostress
       - ADMIN_USER=admin
       - ADMIN_EMAIL=email@example.com
+    ports:
+      - "8000:8000"      
     secrets:
       - django_secret_key
       - postgres_password
