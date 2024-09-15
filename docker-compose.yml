@@ -29,6 +29,8 @@ services:
       - POSTGRES_DB=boostress
       - POSTGRES_USER=boostress
       - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
     secrets:
       - postgres_password
 
