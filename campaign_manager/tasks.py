@@ -19,7 +19,7 @@ def process_order(self, order_id):
 
     [ProviderApi.update_task_statuses(provider, provider.get_active_tasks()) for provider in Provider.objects.all()]
 
-    if (timezone.now() < timedelta(
+    if (timezone.now() > timedelta(
             minutes=active_order.deadline) + active_order.created):
         active_order.status = Status.COMPLETED
         active_order.save()
