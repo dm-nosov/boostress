@@ -17,10 +17,13 @@ def process_order(self, order_id):
     link_type = active_order.link_type
     link = active_order.link
 
-    if (timezone.now() > timedelta(
-            minutes=active_order.deadline) + active_order.updated) and active_order.status == Status.PRE_COMPLETE:
+    [ProviderApi.update_task_statuses(provider, provider.get_active_tasks()) for provider in Provider.objects.all()]
+
+    if (timezone.now() < timedelta(
+            minutes=active_order.deadline) + active_order.created):
         active_order.status = Status.COMPLETED
         active_order.save()
+        active_order.tasks.update(status=Status.COMPLETED)
         return {"result": "Order {} is complete by time, please pause the task".format(active_order.id)}
 
     available_providers = PlatformService.objects.get_providers_by_platform(platform, link_type)
@@ -35,8 +38,6 @@ def process_order(self, order_id):
         available_services = provider.get_available_services(platform, link_type)
 
         if available_services:
-            ProviderApi.update_task_statuses(provider, provider.get_active_tasks())
-
             difference = [item for item in available_services if item not in busy_services]
             if difference:
                 potential_providers.append((provider, random.choice(difference)))

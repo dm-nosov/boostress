@@ -19,11 +19,11 @@ class ProviderApi:
                                                   })
         actual_statuses = r.json()
         for order_id in actual_statuses:
-            task = ServiceTask.objects.filter(ext_order_id=order_id).first()
+            task = ServiceTask.objects.get(ext_order_id=order_id)
             task.status = Status(actual_statuses[order_id]['status'])
-            if task.status == Status.COMPLETED and timezone.now() < task.updated + timedelta(
+            if task.status == Status.COMPLETED and timezone.now() < task.created + timedelta(
                     minutes=task.service.pre_complete_minutes):
-                continue
+                task.status = Status.PRE_COMPLETE
             task.save()
 
     @staticmethod

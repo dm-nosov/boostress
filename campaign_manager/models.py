@@ -31,7 +31,7 @@ class Provider(models.Model):
                                                                                              flat=True).distinct())
 
     def get_active_tasks(self):
-        return ",".join(list(self.tasks.exclude(status=Status.COMPLETED).values_list("ext_order_id", flat=True)))
+        return ",".join(list(self.tasks.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL]).values_list("ext_order_id", flat=True)))
 
 
 class ServiceType(models.Model):
@@ -107,10 +107,11 @@ class Order(models.Model):
 
 class ServiceTaskManager(models.Manager):
     def get_busy_services(self, platform, link_type, link):
-        return list(self.exclude(status=Status.COMPLETED).filter(platform=platform,
-                                                                 link_type=link_type,
-                                                                 link=link).values_list(
-            "service__service_type__name", flat=True).distinct())
+        return list(
+            self.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL]).filter(platform=platform,
+                                                                                                link_type=link_type,
+                                                                                                link=link).values_list(
+                "service__service_type__name", flat=True).distinct())
 
 
 class ServiceTask(models.Model):
@@ -121,7 +122,7 @@ class ServiceTask(models.Model):
     link_type = models.CharField(max_length=20, choices=LinkType.choices, default=LinkType.POST)
     link = models.CharField(max_length=256, default="")
     spent = models.FloatField(default=0.0)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True, related_name="tasks")
     ext_order_id = models.CharField(max_length=40, default="")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
