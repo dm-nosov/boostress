@@ -22,12 +22,12 @@ class ProviderApi:
             task = ServiceTask.objects.get(ext_order_id=order_id)
             task.status = Status(actual_statuses[order_id]['status'])
             if task.status == Status.COMPLETED and timezone.now() < task.created + timedelta(
-                    minutes=task.service.pre_complete_minutes):
+                    minutes=task.pre_complete_minutes):
                 task.status = Status.PRE_COMPLETE
             task.save()
 
     @staticmethod
-    def create_order(provider: Provider, service: PlatformService, link, qty=1, runs=0, interval=0):
+    def create_order(provider: Provider, service: PlatformService, link, qty=1):
 
         packet = {"key": provider.key,
                   "action": "add",
@@ -35,13 +35,6 @@ class ProviderApi:
                   "link": link,
                   "quantity": qty,
                   }
-
-        if runs > 0:
-            extras = {
-                "runs": runs,
-                "interval": interval
-            }
-            packet = packet | extras
 
         # TODO: Rework to Celery chain
         time.sleep(5)

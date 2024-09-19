@@ -54,10 +54,13 @@ def process_order(self, order_id):
     time_diff_min = time_difference_min(active_order.created)
 
     qty = get_order_amount(service.min, service.max, time_diff_min)
-    runs = get_num_times(qty, service.comfort_value)
+
+    if qty < service.min:
+        return {"result": "The task received less than a minimum qty, {}".format(qty)}
+
     interval = get_interval(service.comfort_interval, time_diff_min)
     try:
-        ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty, runs, interval)
+        ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty)
     except Exception as exc:
         return {"result": "Exception in provider API, result {}".format(exc)}
 
@@ -72,6 +75,10 @@ def process_order(self, order_id):
                                               link_type=link_type,
                                               order=active_order, link=active_order.link, ext_order_id=ext_order_id,
                                               spent=charged,
-                                              extras="qty={},runs={},interval={}".format(qty, runs, interval))
+                                              extras="qty={},interval={}".format(qty, interval))
+    service_task.pre_complete_minutes = service.pre_complete_minutes + interval
+    service_task.save()
 
-    return {"result": "Existing the order {}, new service task '{}'".format(active_order.id, service.service_type.name)}
+    return {"result": "Existing the order {}, new service task '{}', interval: {}".format(active_order.id,
+                                                                                          service.service_type.name,
+                                                                                          service_task.pre_complete_minutes)}

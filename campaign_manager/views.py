@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import HttpResponse
 
 from campaign_manager.tasks import process_order
@@ -6,5 +7,6 @@ from campaign_manager.tasks import process_order
 # Create your views here.
 
 def home(request):
-    process_order.delay(4)
+    if settings.DEBUG:
+        process_order.delay(5)
     return HttpResponse("")

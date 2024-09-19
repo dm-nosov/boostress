@@ -17,24 +17,25 @@ def get_order_amount(min_value, max_value, minutes_since_creation):
     random.seed()
 
     current_hour = int(timezone.now().strftime('%H'))
+    hours_from_peak = (current_hour - 18) % 24
+    # Time of day curve (centered at 18:00 UTC)
+    time_factor = 1 / (1 + math.exp(0.5 * (hours_from_peak - 12)))
 
-    normalized_hour = ((current_hour - 18 + 24) % 24) / 24
-    distance_from_peak = min(normalized_hour, 1 - normalized_hour) * 2
-    curve_value = math.pow(1 - math.pow(distance_from_peak, 2), 3)
+    # Decay curve based on minutes since creation
+    decay_factor = 60 * math.exp(-minutes_since_creation / 25) + 1
 
-    random_factor = 0.15
-    random_value = random.random() * random_factor - (random_factor / 2)
+    # Reduce time factor impact for very recent creations
+    recency_weight = min(1, minutes_since_creation / 60)
+    adjusted_time_factor = recency_weight * time_factor + (1 - recency_weight)
 
-    final_value = max(0, min(1, curve_value + random_value))
+    # Combine factors and add randomness
+    combined_factor = adjusted_time_factor * decay_factor / 61  # Normalize to [0, 1]
+    random_factor = random.uniform(-0.05, 0.05)
+    final_factor = max(0, min(1, combined_factor + random_factor))
 
-    scaling_factor = 1 - (distance_from_peak * 0.5)
-    final_value *= scaling_factor
-
-    decay_factor = math.exp(-minutes_since_creation / 60)
-
-    final_value *= decay_factor
-
-    return int(math.ceil(min_value + (max_value - min_value) * final_value))
+    # Calculate final order amount
+    order_amount = int(min_value + (max_value - min_value) * final_factor)
+    return order_amount
 
 
 def get_num_times(amount, convenient_amount):

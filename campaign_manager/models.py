@@ -127,7 +127,8 @@ class ServiceTask(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     extras = models.CharField(max_length=200, default="")
+    pre_complete_minutes = models.IntegerField(default=48 * 60,
+                                               help_text="Duration in minutes before running the next task of the same type. Default is 48 hours.")
     objects = ServiceTaskManager()
-
     def __str__(self):
         return "Task {0}".format(self.id)
