@@ -28,6 +28,9 @@ def process_order(self, order_id):
 
     available_providers = PlatformService.objects.get_providers_by_platform(platform, link_type)
 
+    if not available_providers:
+        return {"result": "Order {}, no available providers found".format(active_order.id)}
+
     # All providers which potentially provide the related services
     potential_providers = []
 
