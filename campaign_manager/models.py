@@ -98,6 +98,7 @@ class Order(models.Model):
     spent = models.FloatField(default=0.0)
     budget = models.FloatField(default=5)
     deadline = models.IntegerField(default=48 * 60)
+    total_followers = models.IntegerField(default=50)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
