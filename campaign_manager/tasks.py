@@ -88,7 +88,7 @@ def process_order(self, order_id):
         qty = get_qty(timezone.now(), active_order.total_followers, service.min, service.max)
 
     if qty == 0:
-        return {"result": "Order {}, qty is {}}, attempted the service {}, stopping the processing".format(active_order.id, qty, service.service_id)}
+        return {"result": "Order {}, qty is {}, attempted the service {}, stopping the processing".format(active_order.id, qty, service.service_id)}
 
     try:
         ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty)
