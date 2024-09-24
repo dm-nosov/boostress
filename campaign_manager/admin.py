@@ -7,7 +7,8 @@ from boostress.local_settings import *
 from django.contrib.auth import get_user_model
 from .models import Provider, ServiceType, ProviderPlatform, PlatformService, ServiceTask, Order
 from django.db.models.signals import post_migrate
-
+from django_celery_results.models import TaskResult
+from django_celery_results.admin import TaskResultAdmin
 
 class ProviderAdmin(admin.ModelAdmin):
     list_display = ('api_url', 'name', 'budget')
@@ -43,8 +44,11 @@ class ServiceTaskInline(admin.TabularInline):
             url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk])
         return format_html('<a href="{}">{}</a>', url, value)
 
-    readonly_fields = ['get_clickable_link', 'provider', 'platform', 'get_service_type', 'get_link_type', 'spent', 'created', 'updated']  # Make all fields readonly
-    fields  = ('get_clickable_link', 'provider', 'platform', 'get_service_type', 'get_link_type', 'spent', 'created', 'updated')
+    readonly_fields = ['get_clickable_link', 'provider', 'platform', 'get_service_type', 'get_link_type', 'spent',
+                       'created', 'updated']  # Make all fields readonly
+    fields = (
+        'get_clickable_link', 'provider', 'platform', 'get_service_type', 'get_link_type', 'spent', 'created',
+        'updated')
     max_num = 0  # Prevents adding new books
 
     def get_service_type(self, obj):
@@ -53,11 +57,37 @@ class ServiceTaskInline(admin.TabularInline):
     def get_link_type(self, obj):
         return obj.service.link_type if obj.service else None
 
+
 class OrderAdmin(admin.ModelAdmin):
     inlines = [ServiceTaskInline]
     list_display = ('name', 'status', 'platform', 'link_type', 'link', 'budget')
     readonly_fields = ['spent', 'created', 'updated']
 
+
+class CustomTaskResultAdmin(TaskResultAdmin):
+    list_display = TaskResultAdmin.list_display + ('order_id',)
+    list_filter = TaskResultAdmin.list_filter + ('task_name',)
+    search_fields = TaskResultAdmin.search_fields + ('task_name', 'task_args', 'result', 'order_id')
+
+    def order_id(self, obj):
+        try:
+            return eval(obj.task_args)[0]
+        except:
+            return None
+    order_id.short_description = 'Order ID'
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        try:
+            order_id = int(search_term)
+            queryset |= self.model.objects.filter(task_args__contains=str(order_id))
+        except ValueError:
+            pass
+        return queryset, use_distinct
+
+
+admin.site.unregister(TaskResult)
+admin.site.register(TaskResult, CustomTaskResultAdmin)
 
 admin.site.register(Provider, ProviderAdmin)
 admin.site.register(ProviderPlatform, ProviderPlatformAdmin)

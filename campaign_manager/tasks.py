@@ -40,10 +40,14 @@ def get_qty(order_created, total_followers, service_min, service_max):
 @shared_task(bind=True)
 def process_order(self, order_id):
 
+
     active_order = Order.objects.get(pk=int(order_id))
     platform = active_order.platform
     link_type = active_order.link_type
     link = active_order.link
+
+    self.name = "Order-{}-{}".format(active_order.id, timezone.now())
+
 
     if active_order.status == Status.COMPLETED:
         active_order.tasks.update(status=Status.COMPLETED)
@@ -76,13 +80,15 @@ def process_order(self, order_id):
     service = PlatformService.objects.filter(provider=provider, platform=platform, service_type__name=service_type_name,
                                              link_type=link_type).order_by('?').first()
 
+    self.name = "Order-{}-S{}-{}".format(active_order.id, service.service_id, timezone.now())
+
     if active_order.time_sensible:
         qty = get_qty(active_order.created, active_order.total_followers, service.min, service.max)
     else:
         qty = get_qty(timezone.now(), active_order.total_followers, service.min, service.max)
 
     if qty == 0:
-        return {"result": "Order {}, qty is too low, stopping the processing".format(active_order.id)}
+        return {"result": "Order {}, qty is {}}, attempted the service {}, stopping the processing".format(active_order.id, qty, service.service_id)}
 
     try:
         ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty)
