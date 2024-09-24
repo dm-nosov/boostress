@@ -46,9 +46,6 @@ def process_order(self, order_id):
     link_type = active_order.link_type
     link = active_order.link
 
-    self.name = "Order-{}-{}".format(active_order.id, timezone.now())
-
-
     if active_order.status == Status.COMPLETED:
         active_order.tasks.update(status=Status.COMPLETED)
         return {"result": "Order {} is completed".format(active_order.id)}
@@ -79,8 +76,6 @@ def process_order(self, order_id):
 
     service = PlatformService.objects.filter(provider=provider, platform=platform, service_type__name=service_type_name,
                                              link_type=link_type).order_by('?').first()
-
-    self.name = "Order-{}-S{}-{}".format(active_order.id, service.service_id, timezone.now())
 
     if active_order.time_sensible:
         qty = get_qty(active_order.created, active_order.total_followers, service.min, service.max)

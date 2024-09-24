@@ -9,6 +9,7 @@ from .models import Provider, ServiceType, ProviderPlatform, PlatformService, Se
 from django.db.models.signals import post_migrate
 from django_celery_results.models import TaskResult
 from django_celery_results.admin import TaskResultAdmin
+import ast
 
 class ProviderAdmin(admin.ModelAdmin):
     list_display = ('api_url', 'name', 'budget')
@@ -67,11 +68,11 @@ class OrderAdmin(admin.ModelAdmin):
 class CustomTaskResultAdmin(TaskResultAdmin):
     list_display = TaskResultAdmin.list_display + ('order_id',)
     list_filter = TaskResultAdmin.list_filter + ('task_name',)
-    search_fields = TaskResultAdmin.search_fields + ('task_name', 'task_args', 'result', 'order_id')
+    search_fields = TaskResultAdmin.search_fields + ('task_name', 'task_args', 'result')
 
     def order_id(self, obj):
         try:
-            return eval(obj.task_args)[0]
+            return ast.literal_eval(obj.task_args)[0]
         except:
             return None
     order_id.short_description = 'Order ID'
