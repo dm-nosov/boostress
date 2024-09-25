@@ -9,7 +9,7 @@ from .models import Provider, ServiceType, ProviderPlatform, PlatformService, Se
 from django.db.models.signals import post_migrate
 from django_celery_results.models import TaskResult
 from django_celery_results.admin import TaskResultAdmin
-import ast
+
 
 class ProviderAdmin(admin.ModelAdmin):
     list_display = ('api_url', 'name', 'budget')
@@ -24,7 +24,16 @@ class ServiceTypeAdmin(admin.ModelAdmin):
 
 
 class PlatformServiceAdmin(admin.ModelAdmin):
-    list_display = ('service_id', 'provider', 'platform', 'service_type', 'link_type', 'min', 'max')
+    def enable_tasks(modeladmin, request, queryset):
+        queryset.update(is_enabled=True)
+        modeladmin.message_user(request, "Selected tasks have been enabled.")
+
+    def disable_tasks(modeladmin, request, queryset):
+        queryset.update(is_enabled=False)
+        modeladmin.message_user(request, "Selected tasks have been disabled.")
+
+    actions = [enable_tasks, disable_tasks]
+    list_display = ('is_enabled', 'service_id', 'provider', 'platform', 'service_type', 'link_type', 'min', 'max')
 
 
 class ServiceTaskAdmin(admin.ModelAdmin):
