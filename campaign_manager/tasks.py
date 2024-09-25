@@ -104,9 +104,9 @@ def process_order(self, order_id):
                                               link_type=link_type,
                                               order=active_order, link=active_order.link, ext_order_id=ext_order_id,
                                               spent=charged,
-                                              extras="qty={}".format(qty))
-    service_task.pre_complete_minutes = service.pre_complete_minutes
-    service_task.save()
+                                              extras="qty={}".format(qty),
+                                              force_complete_after_min=service.force_complete_after_min,
+                                              pre_complete_minutes=service.pre_complete_minutes)
 
     return {"result": "Existing the order {}, new service task '{}', interval: {}".format(active_order.id,
                                                                                           service.service_type.name,

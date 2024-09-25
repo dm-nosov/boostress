@@ -98,8 +98,7 @@ class PlatformService(models.Model):
     service_id = models.CharField(max_length=20)
     min = models.IntegerField(default=1)
     max = models.IntegerField(default=1)
-    comfort_value = models.IntegerField(default=0)
-    comfort_interval = models.IntegerField(default=10)
+    force_complete_after_min = models.IntegerField(default=2 * 60)
     pre_complete_minutes = models.IntegerField(default=48 * 60,
                                                help_text="Duration in minutes before running the next task of the same type. Default is 48 hours.")
     objects = PlatformServiceManager()
