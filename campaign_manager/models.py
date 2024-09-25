@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from django.utils import timezone
 
@@ -5,7 +7,9 @@ from django.utils import timezone
 class LinkType(models.TextChoices):
     PROFILE = 'profile', 'profile'
     POST = 'post', 'post'
-
+    COMMENT = 'comment', 'comment'
+    ADS_POST = 'ads_post', 'ads_post'
+    WEB_TRAFFIC = 'web_traffic', 'web_traffic'
 
 class Status(models.TextChoices):
     PENDING = 'Pending', 'pending'
@@ -33,6 +37,18 @@ class Provider(models.Model):
     def get_active_tasks(self):
         return ",".join(list(self.tasks.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL]).values_list("ext_order_id", flat=True)))
 
+    def force_complete_tasks(self):
+        active_tasks = self.tasks.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL])
+        for task in active_tasks:
+            if task.created + timedelta(minutes=task.force_complete_after_min) < timezone.now():
+                ServiceHealthLog.objects.create(entry="Service {} could not deliver within {} minutes, replacing".format(task.service.service_id, task.force_complete_after_min))
+                task.status = Status.COMPLETED
+                task.save()
+
+
+class ServiceHealthLog(models.Model):
+    entry = models.CharField(max_length=256, default="")
+    created = models.DateTimeField(auto_now_add=True)
 
 class ServiceType(models.Model):
     class Name(models.TextChoices):
@@ -43,6 +59,9 @@ class ServiceType(models.Model):
         REPOST = 'repost', 'repost'
         SEND = 'send', 'send'
         FOLLOW = 'follow', 'follow'
+        COMMENT_EMOJI = 'com_emoji', 'com_emoji'
+        VISIT = 'visit', 'visit'
+
 
     name = models.CharField(max_length=20, choices=Name.choices, default=Name.VIEW)
 
@@ -131,6 +150,7 @@ class ServiceTask(models.Model):
     extras = models.CharField(max_length=200, default="")
     pre_complete_minutes = models.IntegerField(default=48 * 60,
                                                help_text="Duration in minutes before running the next task of the same type. Default is 48 hours.")
+    force_complete_after_min = models.IntegerField(default=2 * 60)
     objects = ServiceTaskManager()
     def __str__(self):
         return "Task {0}".format(self.id)

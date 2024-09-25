@@ -4,7 +4,9 @@ import random
 from datetime import timedelta
 
 from celery import shared_task
+from celery.signals import task_postrun
 from django.utils import timezone
+from django_celery_results.models import TaskResult
 
 from boostress.utils import time_difference_min, get_order_amount, get_num_times, get_interval
 from campaign_manager.models import Order, Status, ServiceTask, Provider, ProviderPlatform, LinkType, PlatformService
@@ -39,18 +41,16 @@ def get_qty(order_created, total_followers, service_min, service_max):
 
 @shared_task(bind=True)
 def process_order(self, order_id):
-
-
     active_order = Order.objects.get(pk=int(order_id))
     platform = active_order.platform
     link_type = active_order.link_type
     link = active_order.link
 
+    self.periodic_task_name = "Order {}, time {}".format(active_order.id, timezone.now())
+
     if active_order.status == Status.COMPLETED:
         active_order.tasks.update(status=Status.COMPLETED)
         return {"result": "Order {} is completed".format(active_order.id)}
-
-    [ProviderApi.update_task_statuses(provider, provider.get_active_tasks()) for provider in Provider.objects.all()]
 
     if (timezone.now() > timedelta(
             minutes=active_order.deadline) + active_order.created):
@@ -83,7 +83,10 @@ def process_order(self, order_id):
         qty = get_qty(timezone.now(), active_order.total_followers, service.min, service.max)
 
     if qty == 0:
-        return {"result": "Order {}, qty is {}, attempted the service {}, stopping the processing".format(active_order.id, qty, service.service_id)}
+        return {
+            "result": "Order {}, qty is {}, attempted the service {}, stopping the processing".format(active_order.id,
+                                                                                                      qty,
+                                                                                                      service.service_id)}
 
     try:
         ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty)
@@ -93,7 +96,7 @@ def process_order(self, order_id):
     active_order.spent += charged
 
     if active_order.budget - active_order.spent < 0.01:
-        active_order.status = Status.PRE_COMPLETE
+        active_order.status = Status.COMPLETED
 
     active_order.save()
 
@@ -108,3 +111,24 @@ def process_order(self, order_id):
     return {"result": "Existing the order {}, new service task '{}', interval: {}".format(active_order.id,
                                                                                           service.service_type.name,
                                                                                           service_task.pre_complete_minutes)}
+
+
+@task_postrun.connect
+def update_task_result(sender=None, task_id=None, task=None, **kwargs):
+    try:
+        # Fetch the task result by its task_id
+        task_result = TaskResult.objects.get(task_id=task_id)
+
+        # Update the fields
+        task_result.periodic_task_name = sender.periodic_task_name
+        task_result.worker = task.request.hostname
+
+        task_result.save(update_fields=['periodic_task_name', 'worker'])
+    except TaskResult.DoesNotExist:
+        pass  # Handle the case where the result isn't found
+
+
+@shared_task(bind=True)
+def update_task_statuses(self):
+    [provider.force_complete_tasks() for provider in Provider.objects.all()]
+    [ProviderApi.update_task_statuses(provider, provider.get_active_tasks()) for provider in Provider.objects.all()]

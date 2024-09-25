@@ -5,7 +5,7 @@ from django.utils.html import format_html
 
 from boostress.local_settings import *
 from django.contrib.auth import get_user_model
-from .models import Provider, ServiceType, ProviderPlatform, PlatformService, ServiceTask, Order
+from .models import Provider, ServiceType, ProviderPlatform, PlatformService, ServiceTask, Order, ServiceHealthLog
 from django.db.models.signals import post_migrate
 from django_celery_results.models import TaskResult
 from django_celery_results.admin import TaskResultAdmin
@@ -66,25 +66,13 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class CustomTaskResultAdmin(TaskResultAdmin):
-    list_display = TaskResultAdmin.list_display + ('order_id',)
-    list_filter = TaskResultAdmin.list_filter + ('task_name',)
-    search_fields = TaskResultAdmin.search_fields + ('task_name', 'task_args', 'result')
+    list_display = TaskResultAdmin.list_display + ('result',)
+    search_fields = TaskResultAdmin.search_fields + ('result', 'periodic_task_name')
 
-    def order_id(self, obj):
-        try:
-            return ast.literal_eval(obj.task_args)[0]
-        except:
-            return None
-    order_id.short_description = 'Order ID'
 
-    def get_search_results(self, request, queryset, search_term):
-        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
-        try:
-            order_id = int(search_term)
-            queryset |= self.model.objects.filter(task_args__contains=str(order_id))
-        except ValueError:
-            pass
-        return queryset, use_distinct
+class ServiceHealthLogAdmin(admin.ModelAdmin):
+    list_display = ('entry', 'created')
+    readonly_fields = ['entry']
 
 
 admin.site.unregister(TaskResult)
@@ -96,6 +84,7 @@ admin.site.register(ServiceType, ServiceTypeAdmin)
 admin.site.register(PlatformService, PlatformServiceAdmin)
 admin.site.register(ServiceTask, ServiceTaskAdmin)
 admin.site.register(Order, OrderAdmin)
+admin.site.register(ServiceHealthLog, ServiceHealthLogAdmin)
 
 ADMIN_USER = os.getenv('ADMIN_USER', 'admin')
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'email@example.com')
