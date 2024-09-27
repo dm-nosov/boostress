@@ -38,3 +38,7 @@ jobs:
         docker push ghcr.io/${{ github.repository }}/boostress:${{ github.event.release.tag_name }}
         docker push ghcr.io/${{ github.repository }}/boostress:latest
         docker push ghcr.io/${{ github.repository }}/boostress:${{ github.sha }}
+
+    - name: Generate version file
+      run: |
+        echo "VERSION = '$(git describe --tags --always)'" > version.py        
