@@ -10,6 +10,9 @@ from django.db.models.signals import post_migrate
 from django_celery_results.models import TaskResult
 from django_celery_results.admin import TaskResultAdmin
 
+from version import VERSION
+
+admin.site.site_header = 'Boostress Admin {}'.format(VERSION)
 
 class ProviderAdmin(admin.ModelAdmin):
     list_display = ('api_url', 'name', 'budget')

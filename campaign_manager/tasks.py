@@ -36,7 +36,7 @@ def get_qty(order_created, total_followers, service_min, service_max):
     if affected_followers > service_max:
         affected_followers = service_max
 
-    return get_order_amount(service_min, affected_followers, time_diff_min)
+    return get_order_amount(affected_followers, time_diff_min)
 
 
 @shared_task(bind=True)
@@ -82,16 +82,17 @@ def process_order(self, order_id):
     else:
         qty = get_qty(timezone.now(), active_order.total_followers, service.min, service.max)
 
-    if qty == 0:
+    if qty < service.min:
         return {
-            "result": "Order {}, qty is {}, attempted the service {}, stopping the processing".format(active_order.id,
+            "result": "Order {}, qty is {}, attempted the service {}, the QTY is less than {}".format(active_order.id,
                                                                                                       qty,
-                                                                                                      service.service_id)}
+                                                                                                      service.service_id,
+                                                                                                      service.min)}
 
     try:
         ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty)
     except Exception as exc:
-        return {"result": "Exception in provider API, result {}".format(exc)}
+        return {"result": "Exception in provider API, service: {}, result {}".format(exc, service.service_id)}
 
     active_order.spent += charged
 

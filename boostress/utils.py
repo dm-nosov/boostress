@@ -13,7 +13,8 @@ def time_difference_min(initial_moment: datetime):
     return int(difference_in_minutes)
 
 
-def get_order_amount(min_value, max_value, minutes_since_creation):
+def get_order_amount(max_value, minutes_since_creation):
+    min_value = 1
     random.seed()
 
     current_hour = int(timezone.now().strftime('%H'))
