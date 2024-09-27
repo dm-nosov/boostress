@@ -25,6 +25,10 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Generate version file
+      run: |
+        echo "VERSION = '$(git describe --tags --always)'" > version.py  
+
     - name: Build and Push Docker image
       run: |
         # Build the image
@@ -37,8 +41,4 @@ jobs:
         # Push the images with all tags
         docker push ghcr.io/${{ github.repository }}/boostress:${{ github.event.release.tag_name }}
         docker push ghcr.io/${{ github.repository }}/boostress:latest
-        docker push ghcr.io/${{ github.repository }}/boostress:${{ github.sha }}
-
-    - name: Generate version file
-      run: |
-        echo "VERSION = '$(git describe --tags --always)'" > version.py        
+        docker push ghcr.io/${{ github.repository }}/boostress:${{ github.sha }}      
