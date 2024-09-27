@@ -35,6 +35,8 @@ def get_order_amount(min_value, max_value, minutes_since_creation):
 
     # Calculate final order amount
     order_amount = int(min_value + (max_value - min_value) * final_factor)
+    if order_amount == min_value and min_value > 9 and max_value - min_value > 5:
+        order_amount += random.randint(1, 5)
     return order_amount
 
 

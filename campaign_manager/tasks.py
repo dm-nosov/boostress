@@ -28,7 +28,7 @@ def get_potential_providers(available_providers, platform, link_type, busy_servi
 
 def get_qty(order_created, total_followers, service_min, service_max):
     time_diff_min = time_difference_min(order_created)
-    share = random.randint(18, 23)
+    share = random.randint(8, 12)
     affected_followers = math.floor(total_followers * share / 100)
     if affected_followers < service_min:
         return 0
