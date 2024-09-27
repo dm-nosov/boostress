@@ -1,7 +1,11 @@
+import json
 from datetime import timedelta
 
 from django.db import models
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule
 
 
 class LinkType(models.TextChoices):
@@ -123,7 +127,7 @@ class Order(models.Model):
     spent = models.FloatField(default=0.0)
     budget = models.FloatField(default=5)
     deadline = models.IntegerField(default=48 * 60)
-    time_sensible = models.BooleanField(default=False,
+    time_sensible = models.BooleanField(default=True,
                                         help_text="The QTYs mimic the decrease in the attention span throughout the time")
     total_followers = models.IntegerField(default=50)
     created = models.DateTimeField(auto_now_add=True)
@@ -162,3 +166,34 @@ class ServiceTask(models.Model):
 
     def __str__(self):
         return "Task {0}".format(self.id)
+
+
+@receiver(post_save, sender=Order)
+def product_created(sender, instance: Order, created, **kwargs):
+    if created and instance.time_sensible:
+        # Schedule for the first hour (every minute)
+        minute_schedule, _ = IntervalSchedule.objects.get_or_create(every=1, period=IntervalSchedule.MINUTES)
+
+        # Schedule for after the first hour (every 17 minutes)
+        seventeen_min_schedule, _ = IntervalSchedule.objects.get_or_create(every=17, period=IntervalSchedule.MINUTES)
+
+        # Create the task for the first hour
+        PeriodicTask.objects.get_or_create(
+            name='{} - 1H'.format(instance.name),
+            task='campaign_manager.tasks.process_order',
+            interval=minute_schedule,
+            start_time=timezone.now(),
+            expires=timezone.now() + timedelta(minutes=90),
+            args=json.dumps([instance.id])
+        )
+
+        # Create the task for after the first hour
+        PeriodicTask.objects.get_or_create(
+            name='{} - 2H+'.format(instance.name),
+            task='campaign_manager.tasks.process_order',
+            interval=seventeen_min_schedule,
+            start_time=timezone.now() + timedelta(minutes=90),
+            args = json.dumps([instance.id]),
+            expires=timezone.now() + timedelta(hours=24*2),
+        )
+
