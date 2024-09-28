@@ -75,7 +75,7 @@ def process_order(self, order_id):
     provider, service_type_name = random.choice(potential_providers)
 
     service = PlatformService.objects.filter(provider=provider, platform=platform, service_type__name=service_type_name,
-                                             link_type=link_type).order_by('?').first()
+                                             link_type=link_type, is_enabled=True).order_by('?').first()
 
     if active_order.time_sensible:
         qty = get_qty(active_order.created, active_order.total_followers, service.min, service.max)
