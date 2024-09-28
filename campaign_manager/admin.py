@@ -73,12 +73,13 @@ class ServiceTaskInline(admin.TabularInline):
 
 class OrderAdmin(admin.ModelAdmin):
     inlines = [ServiceTaskInline]
-    list_display = ('name', 'status', 'platform', 'link_type', 'link', 'budget')
+    list_display = ('name', 'status', 'platform', 'link_type', 'link', 'budget', 'spent', 'created')
     readonly_fields = ['spent', 'created', 'updated']
 
 
 class CustomTaskResultAdmin(TaskResultAdmin):
-    list_display = TaskResultAdmin.list_display + ('result',)
+    list_display = ('task_id', 'periodic_task_name', 'date_done',
+                    'status', 'result')
     search_fields = TaskResultAdmin.search_fields + ('result', 'periodic_task_name')
 
 

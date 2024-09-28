@@ -46,7 +46,7 @@ def process_order(self, order_id):
     link_type = active_order.link_type
     link = active_order.link
 
-    self.periodic_task_name = "Order {}, time {}".format(active_order.id, timezone.now())
+    self.periodic_task_name = "Order {}".format(active_order.id, timezone.now())
 
     if active_order.status == Status.COMPLETED:
         active_order.tasks.update(status=Status.COMPLETED)
