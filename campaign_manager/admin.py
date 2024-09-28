@@ -76,6 +76,14 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'platform', 'link_type', 'link', 'budget', 'spent', 'created')
     readonly_fields = ['spent', 'created', 'updated']
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj is None:  # This is a new object being created
+            last_order = Order.objects.last()
+            next_id = last_order.id + 1 if last_order else 1
+            form.base_fields['name'].initial = "Order {}, ".format(next_id)
+        return form
+
 
 class CustomTaskResultAdmin(TaskResultAdmin):
     list_display = ('task_id', 'periodic_task_name', 'date_done',
