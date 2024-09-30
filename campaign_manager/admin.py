@@ -5,7 +5,8 @@ from django.utils.html import format_html
 
 from boostress.local_settings import *
 from django.contrib.auth import get_user_model
-from .models import Provider, ServiceType, ProviderPlatform, PlatformService, ServiceTask, Order, ServiceHealthLog
+from .models import Provider, ServiceType, ProviderPlatform, PlatformService, ServiceTask, Order, ServiceHealthLog, \
+    EngagementConfig
 from django.db.models.signals import post_migrate
 from django_celery_results.models import TaskResult
 from django_celery_results.admin import TaskResultAdmin
@@ -36,8 +37,8 @@ class PlatformServiceAdmin(admin.ModelAdmin):
         modeladmin.message_user(request, "Selected tasks have been disabled.")
 
     actions = [enable_tasks, disable_tasks]
-    list_display = ('is_enabled', 'service_id', 'provider', 'platform', 'service_type', 'link_type', 'min', 'max')
-
+    list_display = ('is_enabled', 'service_id', 'provider', 'platform', 'service_type', 'link_type', 'min', 'max', 'name')
+    list_filter = ('is_enabled', 'platform', 'link_type', 'provider', 'service_type')
 
 class ServiceTaskAdmin(admin.ModelAdmin):
     list_display = ('status', 'provider', 'platform', 'service', 'link_type', 'link', 'spent')
@@ -75,7 +76,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [ServiceTaskInline]
     list_display = ('name', 'status', 'platform', 'link_type', 'link', 'budget', 'spent', 'created')
     readonly_fields = ['spent', 'created', 'updated']
-
+    list_filter = ('status', 'platform', 'link_type',)
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         if obj is None:  # This is a new object being created
@@ -96,6 +97,10 @@ class ServiceHealthLogAdmin(admin.ModelAdmin):
     readonly_fields = ['entry']
 
 
+class EngagementConfigAdmin(admin.ModelAdmin):
+    list_display = ('name', 'link_type', 'service_type', 'platform_name', 'min', 'max')
+
+
 admin.site.unregister(TaskResult)
 admin.site.register(TaskResult, CustomTaskResultAdmin)
 
@@ -106,6 +111,7 @@ admin.site.register(PlatformService, PlatformServiceAdmin)
 admin.site.register(ServiceTask, ServiceTaskAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(ServiceHealthLog, ServiceHealthLogAdmin)
+admin.site.register(EngagementConfig, EngagementConfigAdmin)
 
 ADMIN_USER = os.getenv('ADMIN_USER', 'admin')
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'email@example.com')

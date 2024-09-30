@@ -61,32 +61,36 @@ class ServiceHealthLog(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 
-class ServiceType(models.Model):
-    class Name(models.TextChoices):
-        LIKE = 'like', 'like'
-        COMMENT = 'comment', 'comment'
-        SHARE = 'share', 'share'
-        VIEW = 'view', 'view'
-        REPOST = 'repost', 'repost'
-        SEND = 'send', 'send'
-        FOLLOW = 'follow', 'follow'
-        COMMENT_EMOJI = 'com_emoji', 'com_emoji'
-        VISIT = 'visit', 'visit'
+class ServiceTypes(models.TextChoices):
+    LIKE = 'like', 'like'
+    COMMENT = 'comment', 'comment'
+    SHARE = 'share', 'share'
+    VIEW = 'view', 'view'
+    REPOST = 'repost', 'repost'
+    SEND = 'send', 'send'
+    SAVE = 'save', 'save'
+    FOLLOW = 'follow', 'follow'
+    COMMENT_EMOJI = 'com_emoji', 'com_emoji'
+    VISIT = 'visit', 'visit'
+    VIDEO_VIEW = 'video_view', 'video_view'
 
-    name = models.CharField(max_length=20, choices=Name.choices, default=Name.VIEW)
+
+class ServiceType(models.Model):
+    name = models.CharField(max_length=20, choices=ServiceTypes.choices, default=ServiceTypes.VIEW)
 
     def __str__(self):
         return self.name
 
 
-class ProviderPlatform(models.Model):
-    class Name(models.TextChoices):
-        LINKEDIN = 'ln', 'linkedin'
-        TIKTOK = 'tt', 'tiktok'
-        TELEGRAM = 'tg', 'telegram'
-        INSTAGRAM = 'ig', 'instagram'
+class PlatformName(models.TextChoices):
+    LINKEDIN = 'ln', 'linkedin'
+    TIKTOK = 'tt', 'tiktok'
+    TELEGRAM = 'tg', 'telegram'
+    INSTAGRAM = 'ig', 'instagram'
 
-    name = models.CharField(max_length=20, choices=Name.choices, default=Name.LINKEDIN)
+
+class ProviderPlatform(models.Model):
+    name = models.CharField(max_length=20, choices=PlatformName.choices, default=PlatformName.LINKEDIN)
 
     def __str__(self):
         return self.name
@@ -102,6 +106,7 @@ class PlatformServiceManager(models.Manager):
 
 class PlatformService(models.Model):
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name="services")
+    name = models.CharField(max_length=100, default="")
     platform = models.ForeignKey(ProviderPlatform, on_delete=models.CASCADE)
     service_type = models.ForeignKey(ServiceType, on_delete=models.CASCADE)
     link_type = models.CharField(max_length=20, choices=LinkType.choices, default=LinkType.POST)
@@ -178,31 +183,28 @@ class ServiceTask(models.Model):
         return "Task {0}".format(self.id)
 
 
-@receiver(post_save, sender=Order)
-def product_created(sender, instance: Order, created, **kwargs):
-    if created and instance.time_sensible:
-        # Schedule for the first hour (every minute)
-        minute_schedule, _ = IntervalSchedule.objects.get_or_create(every=1, period=IntervalSchedule.MINUTES)
+class EngagementConfigManager(models.Manager):
+    def get_config(self, link_type, service_type, platform_name) -> (int, int):
+        exact_config = self.filter(link_type=link_type, service_type=service_type, platform_name=platform_name).first()
+        if exact_config:
+            return exact_config.min, exact_config.max
 
-        # Schedule for after the first hour (every 17 minutes)
-        seventeen_min_schedule, _ = IntervalSchedule.objects.get_or_create(every=17, period=IntervalSchedule.MINUTES)
+        type_config = self.filter(link_type=link_type, service_type=service_type).first()
+        if type_config:
+            return type_config.min, type_config.max
 
-        # Create the task for the first hour
-        PeriodicTask.objects.get_or_create(
-            name='{} - 1H'.format(instance.name),
-            task='campaign_manager.tasks.process_order',
-            interval=minute_schedule,
-            start_time=timezone.now(),
-            expires=timezone.now() + timedelta(minutes=90),
-            args=json.dumps([instance.id])
-        )
+        service_config = self.filter(service_type=service_type).first()
+        if service_config:
+            return service_config.min, service_config.max
 
-        # Create the task for after the first hour
-        PeriodicTask.objects.get_or_create(
-            name='{} - 2H+'.format(instance.name),
-            task='campaign_manager.tasks.process_order',
-            interval=seventeen_min_schedule,
-            start_time=timezone.now() + timedelta(minutes=90),
-            args=json.dumps([instance.id]),
-            expires=timezone.now() + timedelta(hours=24 * 2),
-        )
+        return 8, 12
+
+
+class EngagementConfig(models.Model):
+    name = models.CharField(max_length=100, default="")
+    link_type = models.CharField(max_length=20, choices=LinkType.choices, default=LinkType.POST, null=True, blank=True)
+    service_type = models.CharField(max_length=20, choices=ServiceTypes.choices, default=ServiceTypes.VIEW, null=True, blank=True)
+    platform_name = models.CharField(max_length=20, choices=PlatformName.choices, default=PlatformName.LINKEDIN, null=True, blank=True)
+    min = models.IntegerField(default=1)
+    max = models.IntegerField(default=1)
+    objects = EngagementConfigManager()

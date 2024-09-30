@@ -10,7 +10,8 @@ from django_celery_beat.models import PeriodicTask
 from django_celery_results.models import TaskResult
 
 from boostress.utils import time_difference_min, get_order_amount, get_num_times, get_interval
-from campaign_manager.models import Order, Status, ServiceTask, Provider, ProviderPlatform, LinkType, PlatformService
+from campaign_manager.models import Order, Status, ServiceTask, Provider, ProviderPlatform, LinkType, PlatformService, \
+    EngagementConfig
 from provider_api.api import ProviderApi
 
 
@@ -27,9 +28,9 @@ def get_potential_providers(available_providers, platform, link_type, busy_servi
     return tmp_providers
 
 
-def get_qty(order_created, total_followers, service_min, service_max):
+def get_qty(order_created, total_followers, service_min, service_max, engagement_min, engagement_max):
     time_diff_min = time_difference_min(order_created)
-    share = random.randint(8, 12)
+    share = random.randint(engagement_min, engagement_max)
     affected_followers = math.floor(total_followers * share / 100)
     if affected_followers < service_min:
         return 0
@@ -71,10 +72,16 @@ def process_order(self, order_id):
     service = PlatformService.objects.filter(provider=provider, platform=platform, service_type__name=service_type_name,
                                              link_type=link_type, is_enabled=True).order_by('?').first()
 
+    engagement_min, engagement_max = EngagementConfig.objects.get_config(link_type=link_type,
+                                                                         service_type=service_type_name,
+                                                                         platform_name=platform.name)
+
     if active_order.time_sensible:
-        qty = get_qty(active_order.created, active_order.total_followers, service.min, service.max)
+        qty = get_qty(active_order.created, active_order.total_followers, service.min, service.max, engagement_min,
+                      engagement_max)
     else:
-        qty = get_qty(timezone.now(), active_order.total_followers, service.min, service.max)
+        qty = get_qty(timezone.now(), active_order.total_followers, service.min, service.max, engagement_min,
+                      engagement_max)
 
     if qty < service.min:
         return {
@@ -86,7 +93,9 @@ def process_order(self, order_id):
     try:
         ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty)
     except Exception as exc:
-        return {"result": "Exception in provider API, order {}, service: {}, Exception: {}".format(active_order.id, service.service_id, exc)}
+        return {"result": "Exception in provider API, order {}, service: {}, Exception: {}".format(active_order.id,
+                                                                                                   service.service_id,
+                                                                                                   exc)}
 
     active_order.spent += charged
 
@@ -106,21 +115,6 @@ def process_order(self, order_id):
     return {"result": "Existing the order {}, new service task '{}', interval: {}".format(active_order.id,
                                                                                           service.service_type.name,
                                                                                           service_task.pre_complete_minutes)}
-
-
-@task_postrun.connect
-def update_task_result(sender=None, task_id=None, task=None, **kwargs):
-    try:
-        # Fetch the task result by its task_id
-        task_result = TaskResult.objects.get(task_id=task_id)
-
-        # Update the fields
-        task_result.periodic_task_name = sender.periodic_task_name
-        task_result.worker = task.request.hostname
-
-        task_result.save(update_fields=['periodic_task_name', 'worker'])
-    except TaskResult.DoesNotExist:
-        pass  # Handle the case where the result isn't found
 
 
 @shared_task(bind=True)
