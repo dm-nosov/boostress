@@ -6,6 +6,7 @@ from datetime import timedelta
 from celery import shared_task
 from celery.signals import task_postrun
 from django.utils import timezone
+from django_celery_beat.models import PeriodicTask
 from django_celery_results.models import TaskResult
 
 from boostress.utils import time_difference_min, get_order_amount, get_num_times, get_interval
@@ -52,13 +53,6 @@ def process_order(self, order_id):
         active_order.tasks.update(status=Status.COMPLETED)
         return {"result": "Order {} is completed".format(active_order.id)}
 
-    if (timezone.now() > timedelta(
-            minutes=active_order.deadline) + active_order.created):
-        active_order.status = Status.COMPLETED
-        active_order.save()
-        active_order.tasks.update(status=Status.COMPLETED)
-        return {"result": "Order {} is complete by time, please pause the task".format(active_order.id)}
-
     available_providers = PlatformService.objects.get_providers_by_platform(platform, link_type)
 
     if not available_providers:
@@ -92,7 +86,7 @@ def process_order(self, order_id):
     try:
         ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty)
     except Exception as exc:
-        return {"result": "Exception in provider API, service: {}, result {}".format(exc, service.service_id)}
+        return {"result": "Exception in provider API, order {}, service: {}, Exception: {}".format(active_order.id, service.service_id, exc)}
 
     active_order.spent += charged
 
@@ -133,3 +127,25 @@ def update_task_result(sender=None, task_id=None, task=None, **kwargs):
 def update_task_statuses(self):
     [provider.force_complete_tasks() for provider in Provider.objects.all()]
     [ProviderApi.update_task_statuses(provider, provider.get_active_tasks()) for provider in Provider.objects.all()]
+
+
+@shared_task
+def cleanup_expired_periodic_tasks():
+    return PeriodicTask.objects.filter(expires__lt=timezone.now()).delete()
+
+
+@shared_task(bind=True)
+def update_order_statuses(self):
+    active_orders = Order.objects.get_active_orders()
+
+    completed_orders_ids = []
+
+    for order in active_orders:
+        if (timezone.now() > timedelta(
+                minutes=order.deadline) + order.created):
+            order.status = Status.COMPLETED
+            order.save()
+            order.tasks.update(status=Status.COMPLETED)
+            completed_orders_ids.append(order.id)
+
+    return {"result": "Orders {} are completed by time".format(completed_orders_ids)}

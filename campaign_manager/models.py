@@ -42,11 +42,11 @@ class Provider(models.Model):
 
     def get_active_tasks(self):
         return ",".join(list(
-            self.tasks.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL]).values_list(
+            ServiceTask.objects.get_active_tasks().filter(provider=self).values_list(
                 "ext_order_id", flat=True)))
 
     def force_complete_tasks(self):
-        active_tasks = self.tasks.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL])
+        active_tasks = ServiceTask.objects.get_active_tasks().filter(provider=self)
         for task in active_tasks:
             if task.created + timedelta(minutes=task.force_complete_after_min) < timezone.now():
                 ServiceHealthLog.objects.create(
@@ -118,6 +118,11 @@ class PlatformService(models.Model):
         return self.service_id
 
 
+class OrderManager(models.Manager):
+    def get_active_orders(self):
+        return self.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL])
+
+
 class Order(models.Model):
     name = models.CharField(max_length=100, default="")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
@@ -132,17 +137,22 @@ class Order(models.Model):
     total_followers = models.IntegerField(default=50)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    objects = OrderManager()
 
     def __str__(self):
         return self.name
 
 
 class ServiceTaskManager(models.Manager):
+
+    def get_active_tasks(self):
+        return self.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL])
+
     def get_busy_services(self, platform, link_type, link):
         return list(
-            self.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL]).filter(platform=platform,
-                                                                                                link_type=link_type,
-                                                                                                link=link).values_list(
+            self.get_active_tasks().filter(platform=platform,
+                                           link_type=link_type,
+                                           link=link).values_list(
                 "service__service_type__name", flat=True).distinct())
 
 
@@ -193,7 +203,6 @@ def product_created(sender, instance: Order, created, **kwargs):
             task='campaign_manager.tasks.process_order',
             interval=seventeen_min_schedule,
             start_time=timezone.now() + timedelta(minutes=90),
-            args = json.dumps([instance.id]),
-            expires=timezone.now() + timedelta(hours=24*2),
+            args=json.dumps([instance.id]),
+            expires=timezone.now() + timedelta(hours=24 * 2),
         )
-
