@@ -1,16 +1,16 @@
 import logging
 import math
 import random
+import traceback
 from datetime import timedelta
 
 from celery import shared_task
-from celery.signals import task_postrun
 from django.utils import timezone
 from django_celery_beat.models import PeriodicTask
-from django_celery_results.models import TaskResult
 
-from boostress.utils import time_difference_min, get_order_amount, get_num_times, get_interval
-from campaign_manager.models import Order, Status, ServiceTask, Provider, ProviderPlatform, LinkType, PlatformService, \
+from boostress.utils import time_difference_min, time_decay, \
+    time_based_probability
+from campaign_manager.models import Order, Status, ServiceTask, Provider, PlatformService, \
     EngagementConfig
 from provider_api.api import ProviderApi
 
@@ -28,9 +28,9 @@ def get_potential_providers(available_providers, platform, link_type, busy_servi
     return tmp_providers
 
 
-def get_qty(order_created, total_followers, service_min, service_max, engagement_min, engagement_max):
-    time_diff_min = time_difference_min(order_created)
-    share = random.randint(engagement_min, engagement_max)
+def get_qty(time_diff_min, total_followers, service_min, service_max, engagement_min, engagement_max):
+    share = random.randint(round(engagement_min * time_decay(time_diff_min)),
+                           round(engagement_max * time_decay(time_diff_min)))
     affected_followers = math.floor(total_followers * share / 100)
     if affected_followers < service_min:
         return 0
@@ -38,12 +38,20 @@ def get_qty(order_created, total_followers, service_min, service_max, engagement
     if affected_followers > service_max:
         affected_followers = service_max
 
-    return get_order_amount(affected_followers, time_diff_min)
+    if time_based_probability(time_diff_min):
+        return affected_followers
+
+    return 0
 
 
 @shared_task(bind=True)
 def process_order(self, order_id):
-    active_order = Order.objects.get(pk=int(order_id))
+    try:
+        active_order = Order.objects.get(pk=int(order_id))
+    except Order.DoesNotExist as exc:
+        trace = traceback.format_exc()
+        return {"result": "Order with ID: '{}', type {} was not found, traceback: {}".format(order_id, type(order_id),
+                                                                                             trace)}
     platform = active_order.platform
     link_type = active_order.link_type
     link = active_order.link
@@ -64,7 +72,7 @@ def process_order(self, order_id):
     potential_providers = get_potential_providers(available_providers, platform, link_type, busy_services)
 
     if not potential_providers:
-        return {"result": "Existing the order {}, all providers are loaded".format(active_order.id)}
+        return {"result": "Exiting  the order {}, all providers are loaded".format(active_order.id)}
 
     # Add a task
     provider, service_type_name = random.choice(potential_providers)
@@ -76,11 +84,13 @@ def process_order(self, order_id):
                                                                          service_type=service_type_name,
                                                                          platform_name=platform.name)
 
+    time_difference = time_difference_min(active_order.created)
+
     if active_order.time_sensible:
-        qty = get_qty(active_order.created, active_order.total_followers, service.min, service.max, engagement_min,
+        qty = get_qty(time_difference, active_order.total_followers, service.min, service.max, engagement_min,
                       engagement_max)
     else:
-        qty = get_qty(timezone.now(), active_order.total_followers, service.min, service.max, engagement_min,
+        qty = get_qty(0, active_order.total_followers, service.min, service.max, engagement_min,
                       engagement_max)
 
     if qty < service.min:
@@ -112,9 +122,10 @@ def process_order(self, order_id):
                                               force_complete_after_min=service.force_complete_after_min,
                                               pre_complete_minutes=service.pre_complete_minutes)
 
-    return {"result": "Existing the order {}, new service task '{}', interval: {}".format(active_order.id,
-                                                                                          service.service_type.name,
-                                                                                          service_task.pre_complete_minutes)}
+    return {"result": "Existing the order {}, new service task '{}', interval: {}, QTY: {}".format(active_order.id,
+                                                                                                   service.service_type.name,
+                                                                                                   service_task.pre_complete_minutes,
+                                                                                                   qty)}
 
 
 @shared_task(bind=True)
