@@ -40,8 +40,8 @@ def product_created(sender, instance: Order, created, **kwargs):
             name='{} - 1H'.format(instance.name),
             task='campaign_manager.tasks.process_order',
             interval=minute_schedule,
-            start_time=timezone.now(),
-            expires=timezone.now() + timedelta(minutes=90),
+            start_time=timezone.now() + timedelta(minutes=30),
+            expires=timezone.now() + timedelta(minutes=120),
             args=json.dumps([instance.id])
         )
 
@@ -50,7 +50,7 @@ def product_created(sender, instance: Order, created, **kwargs):
             name='{} - 2H+'.format(instance.name),
             task='campaign_manager.tasks.process_order',
             interval=seventeen_min_schedule,
-            start_time=timezone.now() + timedelta(minutes=90),
+            start_time=timezone.now() + timedelta(minutes=120),
             args=json.dumps([instance.id]),
             expires=timezone.now() + timedelta(hours=24 * 2),
         )
