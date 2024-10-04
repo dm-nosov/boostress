@@ -18,12 +18,10 @@ def time_decay(minutes_passed):
 
 
 def time_based_probability(minutes_from_start):
-    # Convert minutes to hours
-    hours = minutes_from_start / 60
 
-    # Calculate probability: starts at 1 and halves every hour
-    # Using 2^(-hours) to halve the probability every hour
-    current_probability = math.pow(2, -hours)
+    a = 0.0877
+    b = 0.458
+    current_probability = 1 / (1 + a * (minutes_from_start ** b))
 
     # Return 1 with current_probability, 0 otherwise
     return 1 if random.random() < current_probability else 0
