@@ -5,6 +5,7 @@ import traceback
 from datetime import timedelta
 
 from celery import shared_task
+from django.db import transaction
 from django.utils import timezone
 from django_celery_beat.models import PeriodicTask
 
@@ -47,7 +48,8 @@ def get_qty(time_diff_min, total_followers, service_min, service_max, engagement
 @shared_task(bind=True)
 def process_order(self, order_id):
     try:
-        active_order = Order.objects.get(pk=int(order_id))
+        with transaction.atomic():
+            active_order = Order.objects.select_for_update().get(pk=int(order_id))
     except Order.DoesNotExist as exc:
         trace = traceback.format_exc()
         return {"result": "Order with ID: '{}', type {} was not found, traceback: {}".format(order_id, type(order_id),

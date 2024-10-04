@@ -98,6 +98,9 @@ if not DEBUG:
             'USER': os.getenv('POSTGRES_USER'),
             'PASSWORD': DB_PASSWORD,
             'HOST': 'db', # from Docker
+            'OPTIONS': {
+                'options': '-c lock_timeout=5000'  # Set timeout to 5 seconds (5000 milliseconds)
+            }
         }
     }
 
