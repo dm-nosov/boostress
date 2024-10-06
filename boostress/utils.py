@@ -14,17 +14,16 @@ def time_difference_min(initial_moment: datetime):
 
 
 def time_decay(minutes_passed):
-    return max(1 - minutes_passed / (60 * 18), 0)
+    a = 0.1
+    b = 0.5
+    current_probability = 1 / (1 + a * (minutes_passed ** b))
+    return current_probability
 
 
 def time_based_probability(minutes_from_start):
 
-    a = 0.0877
-    b = 0.458
-    current_probability = 1 / (1 + a * (minutes_from_start ** b))
-
     # Return 1 with current_probability, 0 otherwise
-    return 1 if random.random() < current_probability else 0
+    return 1 if random.random() < time_decay(minutes_from_start) else 0
 
 
 def get_persistent_secret_key(file):
