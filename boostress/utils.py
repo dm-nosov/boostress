@@ -17,7 +17,8 @@ def time_decay(minutes_passed):
     a = 0.1
     b = 0.5
     current_probability = 1 / (1 + a * (minutes_passed ** b))
-    return current_probability
+    random_factor = random.uniform(-0.07, 0.07)
+    return max(current_probability + random_factor, 0)
 
 
 def time_based_probability(minutes_from_start):

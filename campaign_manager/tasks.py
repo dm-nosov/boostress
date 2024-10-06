@@ -30,11 +30,13 @@ def get_potential_providers(available_providers, platform, link_type, busy_servi
 
 
 def get_qty(time_diff_min, total_followers, service_min, service_max, engagement_min, engagement_max):
-    share = random.randint(round(engagement_min * time_decay(time_diff_min)),
-                           round(engagement_max * time_decay(time_diff_min)))
-    affected_followers = math.floor(total_followers * share / 100)
+    share = random.randint(engagement_min, engagement_max )
+    affected_followers = math.floor(total_followers * share * time_decay(time_diff_min) / 100)
     if affected_followers < service_min:
         return 0
+
+    if affected_followers == service_min and service_max - service_min < 5:
+        affected_followers += random.randint(1, 5)
 
     if affected_followers > service_max:
         affected_followers = service_max
