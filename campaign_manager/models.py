@@ -140,6 +140,8 @@ class Order(models.Model):
     time_sensible = models.BooleanField(default=True,
                                         help_text="The QTYs mimic the decrease in the attention span throughout the time")
     total_followers = models.IntegerField(default=50)
+    natural_time_cycles = models.BooleanField(default=False,
+                                              help_text="Use with something permanently running to mimic the changes to datetime activity cycles")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     objects = OrderManager()
@@ -203,8 +205,10 @@ class EngagementConfigManager(models.Manager):
 class EngagementConfig(models.Model):
     name = models.CharField(max_length=100, default="")
     link_type = models.CharField(max_length=20, choices=LinkType.choices, default=LinkType.POST, null=True, blank=True)
-    service_type = models.CharField(max_length=20, choices=ServiceTypes.choices, default=ServiceTypes.VIEW, null=True, blank=True)
-    platform_name = models.CharField(max_length=20, choices=PlatformName.choices, default=PlatformName.LINKEDIN, null=True, blank=True)
+    service_type = models.CharField(max_length=20, choices=ServiceTypes.choices, default=ServiceTypes.VIEW, null=True,
+                                    blank=True)
+    platform_name = models.CharField(max_length=20, choices=PlatformName.choices, default=PlatformName.LINKEDIN,
+                                     null=True, blank=True)
     min = models.IntegerField(default=1)
     max = models.IntegerField(default=1)
     objects = EngagementConfigManager()

@@ -21,6 +21,10 @@ def time_decay(minutes_passed):
     return max(current_probability + random_factor, 0)
 
 
+def engagement_by_hour(hour_diff_to_peak):
+    return (hour_diff_to_peak + 1) / (1 + (hour_diff_to_peak + 1) * math.log2(hour_diff_to_peak + 1))
+
+
 def time_based_probability(minutes_from_start):
 
     # Return 1 with current_probability, 0 otherwise

@@ -10,7 +10,7 @@ from django.utils import timezone
 from django_celery_beat.models import PeriodicTask
 
 from boostress.utils import time_difference_min, time_decay, \
-    time_based_probability
+    time_based_probability, engagement_by_hour
 from campaign_manager.models import Order, Status, ServiceTask, Provider, PlatformService, \
     EngagementConfig
 from provider_api.api import ProviderApi
@@ -29,9 +29,14 @@ def get_potential_providers(available_providers, platform, link_type, busy_servi
     return tmp_providers
 
 
-def get_qty(time_diff_min, total_followers, service_min, service_max, engagement_min, engagement_max):
-    share = random.randint(engagement_min, engagement_max )
+def get_qty(time_diff_min, total_followers, service_min, service_max, engagement_min, engagement_max, is_natural_time_cycles):
+    share = random.randint(engagement_min, engagement_max)
     affected_followers = math.floor(total_followers * share * time_decay(time_diff_min) / 100)
+    if is_natural_time_cycles:
+        current_hour = int(timezone.now().strftime('%H'))
+        hours_from_peak = (current_hour - 18) % 24
+        affected_followers = round(affected_followers * engagement_by_hour(hours_from_peak))
+
     if affected_followers < service_min:
         return 0
 
@@ -92,10 +97,10 @@ def process_order(self, order_id):
 
     if active_order.time_sensible:
         qty = get_qty(time_difference, active_order.total_followers, service.min, service.max, engagement_min,
-                      engagement_max)
+                      engagement_max, active_order.natural_time_cycles)
     else:
         qty = get_qty(0, active_order.total_followers, service.min, service.max, engagement_min,
-                      engagement_max)
+                      engagement_max, active_order.natural_time_cycles)
 
     if qty < service.min:
         return {
