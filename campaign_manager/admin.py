@@ -58,10 +58,10 @@ class ServiceTaskInline(admin.TabularInline):
             url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk])
         return format_html('<a href="{}">{}</a>', url, value)
 
-    readonly_fields = ['get_clickable_link', 'provider', 'platform', 'get_service_type', 'get_link_type', 'spent',
+    readonly_fields = ['get_clickable_link', 'provider', 'platform', 'get_service_type', 'get_link_type', 'extras', 'spent',
                        'created', 'updated']  # Make all fields readonly
     fields = (
-        'get_clickable_link', 'provider', 'platform', 'get_service_type', 'get_link_type', 'spent', 'created',
+        'get_clickable_link', 'provider', 'platform', 'get_service_type', 'get_link_type', 'extras', 'spent', 'created',
         'updated')
     max_num = 0  # Prevents adding new books
 
