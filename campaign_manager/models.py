@@ -1,10 +1,7 @@
-import json
 from datetime import timedelta
 
 from django.db import models
 from django.utils import timezone
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule
 
 
@@ -26,8 +23,14 @@ class Status(models.TextChoices):
     PRE_COMPLETE = 'Pre_complete', 'pre_complete'
 
 
+class ProviderType(models.TextChoices):
+    B11D = 'b11d', 'b11d'
+    U1U = 'u1u', 'u1u'
+
+
 class Provider(models.Model):
     api_url = models.CharField(max_length=200)
+    api_type = models.CharField(max_length=20, choices=ProviderType.choices, default=ProviderType.B11D)
     name = models.CharField(max_length=100, default="")
     key = models.CharField(max_length=100, default="")
     budget = models.FloatField()

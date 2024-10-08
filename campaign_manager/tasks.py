@@ -1,4 +1,4 @@
-import logging
+import math
 import math
 import random
 import traceback
@@ -13,7 +13,7 @@ from boostress.utils import time_difference_min, time_decay, \
     time_based_probability, engagement_by_hour
 from campaign_manager.models import Order, Status, ServiceTask, Provider, PlatformService, \
     EngagementConfig
-from provider_api.api import ProviderApi
+from provider_api.common import APIFactory
 
 
 def get_potential_providers(available_providers, platform, link_type, busy_services):
@@ -29,7 +29,8 @@ def get_potential_providers(available_providers, platform, link_type, busy_servi
     return tmp_providers
 
 
-def get_qty(time_diff_min, total_followers, service_min, service_max, engagement_min, engagement_max, is_natural_time_cycles):
+def get_qty(time_diff_min, total_followers, service_min, service_max, engagement_min, engagement_max,
+            is_natural_time_cycles):
     share = random.randint(engagement_min, engagement_max)
     affected_followers = math.floor(total_followers * share * time_decay(time_diff_min) / 100)
     if is_natural_time_cycles:
@@ -86,6 +87,8 @@ def process_order(self, order_id):
     # Add a task
     provider, service_type_name = random.choice(potential_providers)
 
+    provider_api = APIFactory.get_api(provider.api_type)
+
     service = PlatformService.objects.filter(provider=provider, platform=platform, service_type__name=service_type_name,
                                              link_type=link_type, is_enabled=True).order_by('?').first()
 
@@ -110,7 +113,7 @@ def process_order(self, order_id):
                                                                                                       service.min)}
 
     try:
-        ext_order_id, charged = ProviderApi.create_order(provider, service, active_order.link, qty)
+        ext_order_id, charged = provider_api.create_order(provider, service, active_order.link, qty)
     except Exception as exc:
         return {"result": "Exception in provider API, order {}, service: {}, Exception: {}".format(active_order.id,
                                                                                                    service.service_id,
@@ -140,7 +143,8 @@ def process_order(self, order_id):
 @shared_task(bind=True)
 def update_task_statuses(self):
     [provider.force_complete_tasks() for provider in Provider.objects.all()]
-    [ProviderApi.update_task_statuses(provider, provider.get_active_tasks()) for provider in Provider.objects.all()]
+    [APIFactory.get_api(provider.api_type).update_task_statuses(provider, provider.get_active_tasks()) for provider in
+     Provider.objects.all()]
 
 
 @shared_task

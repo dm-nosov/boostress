@@ -6,11 +6,11 @@ import requests
 from django.utils import timezone
 
 from campaign_manager.models import Provider, ServiceTask, Status, PlatformService
+from provider_api.abstract import ProviderAPIInterface
 
-
-class ProviderApi:
-    @staticmethod
-    def update_task_statuses(provider: Provider, orders_list: str):
+class ProviderB11DApi(ProviderAPIInterface):
+    @classmethod
+    def update_task_statuses(cls, provider: Provider, orders_list: str):
         if not orders_list:
             return
         r = requests.post(provider.api_url, json={"key": provider.key,
@@ -26,8 +26,8 @@ class ProviderApi:
                 task.status = Status.PRE_COMPLETE
             task.save()
 
-    @staticmethod
-    def create_order(provider: Provider, service: PlatformService, link, qty=1):
+    @classmethod
+    def create_order(cls, provider: Provider, service: PlatformService, link, qty=1):
 
         packet = {"key": provider.key,
                   "action": "add",
@@ -35,9 +35,6 @@ class ProviderApi:
                   "link": link,
                   "quantity": qty,
                   }
-
-        # TODO: Rework to Celery chain
-        time.sleep(5)
 
         r = requests.post(provider.api_url, json=packet)
         order_response = r.json()
