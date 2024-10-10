@@ -13,3 +13,7 @@ class ProviderAPIInterface(ABC):
     @abstractmethod
     def update_task_statuses(cls, provider: Provider, orders_list: str) -> None:
         pass
+
+
+class ProviderApiException(Exception):
+    pass

@@ -114,6 +114,7 @@ class PlatformService(models.Model):
     service_type = models.ForeignKey(ServiceType, on_delete=models.CASCADE)
     link_type = models.CharField(max_length=20, choices=LinkType.choices, default=LinkType.POST)
     service_id = models.CharField(max_length=20)
+    service_meta = models.TextField(default="")
     is_enabled = models.BooleanField(default=True)
     min = models.IntegerField(default=1)
     max = models.IntegerField(default=1)
