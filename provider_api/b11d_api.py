@@ -8,6 +8,7 @@ from django.utils import timezone
 from campaign_manager.models import Provider, ServiceTask, Status, PlatformService
 from provider_api.abstract import ProviderAPIInterface
 
+
 class ProviderB11DApi(ProviderAPIInterface):
     @classmethod
     def update_task_statuses(cls, provider: Provider, orders_list: str):
