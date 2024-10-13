@@ -10,6 +10,8 @@ from provider_api.abstract import ProviderAPIInterface, \
 
 class ProviderU1UApi(ProviderAPIInterface):
 
+    STATUS_REQUIRES_APPROVE = "2"
+
     @staticmethod
     def _add_task(provider: Provider, folder_id, link, task_info) -> int:
         r = requests.post(provider.api_url, data={"api_key": provider.key, "action": "add_task", "folder_id": folder_id,
@@ -84,23 +86,69 @@ class ProviderU1UApi(ProviderAPIInterface):
 
     @classmethod
     def update_task_statuses(cls, provider: Provider, orders_list: str):
-        pass
+        task_ids_list = orders_list.split(",")
+        for task_id in task_ids_list:
+            reports_list = cls._get_reports(provider, task_id)
+            for report in reports_list:
+                if report["status"] == cls.STATUS_REQUIRES_APPROVE:
+                    cls._approve_report(provider, report["id"])
 
     @classmethod
     def create_order(cls, provider: Provider, service: PlatformService, link, qty=1):
         # Check if a task-related folder already exists, if not - create one
 
-        folder_name = ProviderU1UApi._get_folder_name_by_link(link, service.service_type, service.link_type)
-        folder_id = ProviderU1UApi._folder_id(provider, folder_name)
+        folder_name = cls._get_folder_name_by_link(link, service.service_type, service.link_type)
+        folder_id = cls._folder_id(provider, folder_name)
 
         task_info = json.loads(service.service_meta)
 
         if folder_id:
-            task_id = ProviderU1UApi._get_task(provider, folder_id)
-            ProviderU1UApi._update_task_limit(provider, task_id, qty)
+            task_id = cls._get_task(provider, folder_id)
+            cls._update_task_limit(provider, task_id, qty)
         else:
-            folder_id = ProviderU1UApi._create_folder(provider, folder_name)
-            task_id = ProviderU1UApi._add_task(provider, folder_id, link, task_info)
-            ProviderU1UApi._update_task_limit(provider, task_id, qty)
+            folder_id = cls._create_folder(provider, folder_name)
+            task_id = cls._add_task(provider, folder_id, link, task_info)
+            cls._update_task_limit(provider, task_id, qty)
 
         return task_id, task_info["price"] * qty
+
+    @classmethod
+    def _approve_report(cls, provider, report_id):
+
+        report = {"report_id": report_id}
+
+        r = requests.post(provider.api_url, data={"api_key": provider.key,
+                                                  "action": "approve_report",
+                                                  } | report)
+        print(r.status_code)
+        print(r.json())
+
+    @classmethod
+    def _get_reports(cls, provider, task_id: str) -> list[dict]:
+        r = requests.post(provider.api_url, data={"api_key": provider.key,
+                                                  "action": "get_reports",
+                                                  })
+        """
+        Example:
+                "reports": [{
+          'id': '9764',
+          'task_id': '116',
+          'worker_id': '28',
+          'price_rub': 2,
+          'status': '6',
+          'messages': [
+            {
+              'from_id': '12',
+              'to_id': '13',
+              'date': '2024-10-13 11:54:31',
+              'text': 'sometext',
+              'files': [
+                'https://example.com/uploads/files/20241013/37il.png'
+              ]
+            }
+          ],
+          'ip': '192.168.0.1'
+        }]
+        """
+
+        return r.json()["reports"]
