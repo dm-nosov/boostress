@@ -84,6 +84,15 @@ class ProviderU1UApi(ProviderAPIInterface):
                 return folder["id"]
         return 0
 
+    @staticmethod
+    def _push_task(provider: Provider, task_id: str):
+        task_info = {
+            "task_id": task_id,
+        }
+        r = requests.post(provider.api_url, data={"api_key": provider.key, "action": "task_to_top"} | task_info)
+        print(r.status_code)
+        print(r.json())
+
     @classmethod
     def update_task_statuses(cls, provider: Provider, orders_list: str):
         task_ids_list = orders_list.split(",")
@@ -105,6 +114,7 @@ class ProviderU1UApi(ProviderAPIInterface):
         if folder_id:
             task_id = cls._get_task(provider, folder_id)
             cls._update_task_limit(provider, task_id, qty)
+            cls._push_task(provider, task_id)
         else:
             folder_id = cls._create_folder(provider, folder_name)
             task_id = cls._add_task(provider, folder_id, link, task_info)
