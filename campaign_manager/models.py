@@ -38,8 +38,8 @@ class Provider(models.Model):
     def __str__(self):
         return self.name
 
-    def get_available_services(self, platform, link_type):
-        return list(self.services.filter(platform=platform, link_type=link_type, is_enabled=True).values_list(
+    def get_available_services(self, platform, link_type, min_since_created):
+        return list(self.services.filter(platform=platform, link_type=link_type, is_enabled=True, start_after__lte=min_since_created, end_after__gt=min_since_created).values_list(
             "service_type__name",
             flat=True).distinct())
 
@@ -121,6 +121,8 @@ class PlatformService(models.Model):
     force_complete_after_min = models.IntegerField(default=2 * 60)
     pre_complete_minutes = models.IntegerField(default=48 * 60,
                                                help_text="Duration in minutes before running the next task of the same type. Default is 48 hours.")
+    start_after = models.IntegerField(default=0)
+    end_after = models.IntegerField(default=99999)
     objects = PlatformServiceManager()
 
     def __str__(self):

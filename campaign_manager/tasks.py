@@ -16,11 +16,11 @@ from campaign_manager.models import Order, Status, ServiceTask, Provider, Platfo
 from provider_api.common import APIFactory
 
 
-def get_potential_providers(available_providers, platform, link_type, busy_services):
+def get_potential_providers(available_providers, platform, link_type, busy_services, min_since_created):
     tmp_providers = []
     for provider in available_providers:
 
-        available_services = provider.get_available_services(platform, link_type)
+        available_services = provider.get_available_services(platform, link_type, min_since_created)
 
         if available_services:
             difference = [item for item in available_services if item not in busy_services]
@@ -65,6 +65,7 @@ def process_order(self, order_id):
     platform = active_order.platform
     link_type = active_order.link_type
     link = active_order.link
+    min_since_created = (timezone.now() - active_order.created).total_seconds() // 60
 
     self.periodic_task_name = "Order {}".format(active_order.id, timezone.now())
 
@@ -79,7 +80,7 @@ def process_order(self, order_id):
 
     busy_services = ServiceTask.objects.get_busy_services(platform, link_type, link)
 
-    potential_providers = get_potential_providers(available_providers, platform, link_type, busy_services)
+    potential_providers = get_potential_providers(available_providers, platform, link_type, busy_services, min_since_created)
 
     if not potential_providers:
         return {"result": "Exiting  the order {}, all providers are loaded".format(active_order.id)}
