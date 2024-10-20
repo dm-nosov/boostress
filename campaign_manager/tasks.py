@@ -41,11 +41,11 @@ def get_qty(time_diff_min, total_followers, service_min, service_max, engagement
     if affected_followers < service_min:
         return 0
 
-    if affected_followers == service_min and service_max - service_min < 5:
+    if affected_followers == service_min:
         affected_followers += random.randint(0, 2)
 
-    if affected_followers > service_max:
-        affected_followers = service_max
+    if affected_followers >= service_max:
+        affected_followers = service_max + random.randint(0, 1)
 
     if time_based_probability(time_diff_min):
         return affected_followers
