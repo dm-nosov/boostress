@@ -65,7 +65,7 @@ class AgentOpResultManager(models.Manager):
 
     def get_active_deployments(self, last_deploy_hrs):
         hours_ago = timezone.now() - timezone.timedelta(hours=last_deploy_hrs)
-        active_deployments = self.filter(created__gt=hours_ago, is_fwd=False)
+        active_deployments = self.filter(created__gt=hours_ago)
         return active_deployments
 
 
