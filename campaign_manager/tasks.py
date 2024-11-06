@@ -1,5 +1,3 @@
-import math
-import math
 import random
 import traceback
 from datetime import timedelta
@@ -9,8 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from django_celery_beat.models import PeriodicTask
 
-from boostress.utils import time_difference_min, time_decay, \
-    time_based_probability, engagement_by_hour
+from boostress.utils import time_difference_min, get_qty
 from campaign_manager.models import Order, Status, ServiceTask, Provider, PlatformService, \
     EngagementConfig
 from provider_api.common import APIFactory
@@ -27,31 +24,6 @@ def get_potential_providers(available_providers, platform, link_type, busy_servi
             if difference:
                 tmp_providers.append((provider, random.choice(difference)))
     return tmp_providers
-
-
-def get_qty(time_diff_min, total_followers, service_min, service_max, engagement_min, engagement_max,
-            is_natural_time_cycles):
-    share = random.randint(engagement_min, engagement_max)
-    affected_followers = math.floor(total_followers * share * time_decay(time_diff_min) / 100)
-    if is_natural_time_cycles:
-        current_hour = int(timezone.now().strftime('%H'))
-        hours_from_peak = (current_hour - 18) % 24
-        affected_followers = round(affected_followers * engagement_by_hour(hours_from_peak))
-
-    if affected_followers < service_min:
-        return 0
-
-    if affected_followers == service_min:
-        affected_followers += random.randint(0, 2)
-
-    if affected_followers >= service_max:
-        affected_followers = service_max + random.randint(0, 1)
-
-    if time_based_probability(time_diff_min):
-        return affected_followers
-
-    return 0
-
 
 @shared_task(bind=True)
 def process_order(self, order_id):

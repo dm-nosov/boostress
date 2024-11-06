@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'campaign_manager.apps.CampaignManagerConfig',
     'django_celery_beat',
     'django_celery_results',
+    'delivery_cloud.apps.DeliveryCloudConfig'
 ]
 
 MIDDLEWARE = [

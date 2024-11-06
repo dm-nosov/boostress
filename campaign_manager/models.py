@@ -39,7 +39,9 @@ class Provider(models.Model):
         return self.name
 
     def get_available_services(self, platform, link_type, min_since_created):
-        return list(self.services.filter(platform=platform, link_type=link_type, is_enabled=True, start_after__lte=min_since_created, end_after__gt=min_since_created).values_list(
+        return list(self.services.filter(platform=platform, link_type=link_type, is_enabled=True,
+                                         start_after__lte=min_since_created,
+                                         end_after__gt=min_since_created).values_list(
             "service_type__name",
             flat=True).distinct())
 
@@ -133,6 +135,16 @@ class OrderManager(models.Manager):
     def get_active_orders(self):
         return self.exclude(status__in=[Status.COMPLETED, Status.CANCELED, Status.PARTIAL])
 
+    def get_deployment_order(self):
+        return self.get_or_create(name="DEPLOYMENT-TASKS",
+                                  status=Status.IN_PROGRESS,
+                                  link="",
+                                  platform=ProviderPlatform.objects.get(name=PlatformName.TELEGRAM),
+                                  budget=9999999,
+                                  deadline=999999,
+                                  time_sensible=False,
+                                  total_followers=1000)
+
 
 class Order(models.Model):
     name = models.CharField(max_length=100, default="")
@@ -155,6 +167,11 @@ class Order(models.Model):
     def __str__(self):
         return self.name
 
+    def get_last_completed_task_time(self, resource_link, service):
+        last_task = self.tasks.filter(link=resource_link, service=service).last()
+        if last_task:
+            return last_task.created + last_task.force_complete_after_min
+        return timezone.now() - timezone.timedelta(days=7)
 
 class ServiceTaskManager(models.Manager):
 
