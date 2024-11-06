@@ -142,8 +142,7 @@ class OrderManager(models.Manager):
                                   platform=ProviderPlatform.objects.get(name=PlatformName.TELEGRAM),
                                   budget=9999999,
                                   deadline=999999,
-                                  time_sensible=False,
-                                  total_followers=1000)
+                                  time_sensible=False)
 
 
 class Order(models.Model):
