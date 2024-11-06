@@ -60,7 +60,7 @@ def fwd_resource(agent, endpoint, op_resource):
     if op_id == 0:
         return {"status": "error", "details": "FWD: op_id is 0", "endpoint": endpoint.name, "operation": "create"}
 
-    endpoint.message_qty += 1
+    endpoint.message_qty = op_id
     endpoint.save()
     out = AgentOpResult.objects.create(endpoint=endpoint, ref_id=op_id,
                                        ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label, endpoint.message_qty),
