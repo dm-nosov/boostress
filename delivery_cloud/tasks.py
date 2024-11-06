@@ -63,7 +63,7 @@ def fwd_resource(agent, endpoint, op_resource):
     endpoint.message_qty += 1
     endpoint.save()
     out = AgentOpResult.objects.create(endpoint=endpoint, ref_id=op_id,
-                                       ref_url="{}/{}/{}".format(agent.url, endpoint.label, endpoint.message_qty),
+                                       ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label, endpoint.message_qty),
                                        is_fwd=True)
 
     return {"status": "success", "created": out.ref_url}
