@@ -19,10 +19,16 @@ def deploy_resource(self, last_message_hrs=4):
         return {"task": "deploy_resource", "detail": "all endpoints are busy, exiting"}
 
     endpoint = random.choice(endpoints)
-    op_type = random.choice([OP_SEND, OP_FWD])
+
+    probability = random.randint(1, 10)
+    if probability < 3:
+        op_type = OP_FWD
+    else:
+        op_type = OP_SEND
+
     last_deployments = AgentOpResult.objects.exclude(endpoint=endpoint).exclude(is_fwd=True)[:10]
     if op_type == OP_FWD and not last_deployments:
-        return {"endpoint": endpoint.name, "operation": op_type,  "detail": "Nothing to forward, exiting"}
+        return {"endpoint": endpoint.name, "operation": op_type, "detail": "Nothing to forward, exiting"}
 
     if op_type == OP_SEND:
         another_endpoint = Endpoint.objects.exclude(id=endpoint.id).order_by('?')[0]
@@ -63,7 +69,8 @@ def fwd_resource(agent, endpoint, op_resource):
     endpoint.message_qty = op_id
     endpoint.save()
     out = AgentOpResult.objects.create(endpoint=endpoint, ref_id=op_id,
-                                       ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label, endpoint.message_qty),
+                                       ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label,
+                                                                 endpoint.message_qty),
                                        is_fwd=True)
 
     return {"status": "success", "created": out.ref_url}
