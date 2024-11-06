@@ -170,7 +170,7 @@ class Order(models.Model):
     def get_last_completed_task_time(self, resource_link, service):
         last_task = self.tasks.filter(link=resource_link, service=service).last()
         if last_task:
-            return last_task.created + last_task.force_complete_after_min
+            return last_task.created + timezone.timedelta(minutes=last_task.force_complete_after_min)
         return timezone.now() - timezone.timedelta(days=7)
 
 class ServiceTaskManager(models.Manager):
