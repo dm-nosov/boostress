@@ -32,7 +32,7 @@ def deploy_resource(self, last_message_hrs=4):
     elif op_type == OP_FWD:
         op_resource = random.choice(last_deployments)
         out = fwd_resource(agent, endpoint, op_resource)
-        return {"endpoint": endpoint.name, "operation": op_type, "resource": op_resource.url, "out": out}
+        return {"endpoint": endpoint.name, "operation": op_type, "resource": op_resource.ref_url, "out": out}
 
 
 def create_resource(agent, endpoint, another_endpoint=None):
