@@ -138,7 +138,7 @@ class OrderManager(models.Manager):
     def get_deployment_order(self):
         return self.get_or_create(name="DEPLOYMENT-TASKS",
                                   status=Status.IN_PROGRESS,
-                                  link="",
+                                  link="http://",
                                   platform=ProviderPlatform.objects.get(name=PlatformName.TELEGRAM),
                                   budget=9999999,
                                   deadline=999999,
