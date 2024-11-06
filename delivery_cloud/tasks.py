@@ -16,9 +16,7 @@ def deploy_resource(self, last_message_hrs=4):
     endpoints = AgentOpResult.objects.get_available_endpoints(last_message_hrs)
 
     if not endpoints:
-        endpoint = Endpoint.objects.all().order_by('?')[0]
-        create_resource(agent, endpoint)
-        return {"endpoint": endpoint.name, "operation": "create"}
+        return {"task": "deploy_resource", "detail": "all endpoints are busy, exiting"}
 
     endpoint = random.choice(endpoints)
     op_type = random.choice([OP_SEND, OP_FWD])
