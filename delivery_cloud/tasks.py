@@ -22,7 +22,11 @@ def deploy_resource(self, last_message_hrs=4):
 
     endpoint = random.choice(endpoints)
     op_type = random.choice([OP_SEND, OP_FWD])
-    op_resource = random.choice(AgentOpResult.objects.exclude(endpoint=endpoint).exclude(is_fwd=True)[:10])
+    last_deployments = AgentOpResult.objects.exclude(endpoint=endpoint).exclude(is_fwd=True)[:10]
+    if op_type == OP_FWD and last_deployments:
+        op_resource = random.choice(AgentOpResult.objects.exclude(endpoint=endpoint).exclude(is_fwd=True)[:10])
+    else:
+        return {"endpoint": endpoint.name, "operation": op_type,  "detail": "Nothing to forward, exiting"}
 
     another_endpoint = Endpoint.objects.exclude(id=endpoint.id).order_by('?')[0]
 
