@@ -99,7 +99,9 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
     for agent_service in AgentService.objects.filter(is_ref=is_ref):
         if timezone.now() > active_order.get_last_completed_task_time(deployment.ref_url,
                                                                       agent_service.service) \
-                and agent_service.service.start_after < timezone.now() - deployment.created < agent_service.service.end_after:
+            and timezone.timedelta(
+            minutes=agent_service.service.start_after) < timezone.now() - deployment.created < timezone.timedelta(
+            minutes=agent_service.service.end_after):
             engagement_min, engagement_max = EngagementConfig.objects.get_config(link_type=active_order.link_type,
                                                                                  service_type=agent_service.service.service_type,
                                                                                  platform_name=active_order.platform.name)
