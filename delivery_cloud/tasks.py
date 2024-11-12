@@ -44,8 +44,10 @@ def deploy_resource(self, last_message_hrs=4):
 def create_resource(agent, endpoint, another_endpoint=None):
     resource = AgentResource.objects.filter(is_active=True).order_by('?')[0]
     op_id = 0
+    use_reference = False
     if another_endpoint and random.randint(1, 10) < 3:
         op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, another_endpoint.label)
+        use_reference = True
     else:
         op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, None)
 
@@ -57,6 +59,8 @@ def create_resource(agent, endpoint, another_endpoint=None):
     out = AgentOpResult.objects.create(endpoint=endpoint, ref_id=op_id,
                                        ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label,
                                                                  endpoint.message_qty))
+    if use_reference:
+        fulfill_delivery.apply_async((out.id, use_reference), countdown=60 * 5)
     return {"status": "success", "created": out.ref_url}
 
 
@@ -72,7 +76,7 @@ def fwd_resource(agent, endpoint, op_resource):
                                        ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label,
                                                                  endpoint.message_qty),
                                        is_fwd=True)
-
+    fulfill_delivery.apply_async((out.id, True), countdown=60 * 5)
     return {"status": "success", "created": out.ref_url}
 
 
@@ -89,11 +93,13 @@ def manage_delivery(self, last_message_hrs=2):
 
 
 @shared_task(bind=True)
-def fulfill_delivery(self, deployment_id):
+def fulfill_delivery(self, deployment_id, is_ref=False):
     deployment = AgentOpResult.objects.get(pk=deployment_id)
     active_order, is_created = Order.objects.get_deployment_order()
-    for agent_service in AgentService.objects.all():
-        if timezone.now() > active_order.get_last_completed_task_time(deployment.ref_url, agent_service.service):
+    for agent_service in AgentService.objects.filter(is_ref=is_ref):
+        if timezone.now() > active_order.get_last_completed_task_time(deployment.ref_url,
+                                                                      agent_service.service) \
+                and agent_service.service.start_after < timezone.now() - deployment.created < agent_service.service.end_after:
             engagement_min, engagement_max = EngagementConfig.objects.get_config(link_type=active_order.link_type,
                                                                                  service_type=agent_service.service.service_type,
                                                                                  platform_name=active_order.platform.name)
@@ -111,11 +117,17 @@ def fulfill_delivery(self, deployment_id):
                         agent_service.service.service_id,
                         agent_service.service.min)}
 
+            if not is_ref:
+                link = deployment.ref_url
+            else:
+                agent = Agent.objects.first()
+                link = "{}{}".format(agent.endpoint_url, deployment.endpoint.label)
+
             try:
                 provider_api = APIFactory.get_api(agent_service.service.provider.api_type)
                 ext_order_id, charged = provider_api.create_order(agent_service.service.provider,
                                                                   agent_service.service,
-                                                                  deployment.ref_url, qty)
+                                                                  link, qty)
             except Exception as exc:
                 return {
                     "result": "Exception in provider API, order {}, service: {}, Exception: {}".format(active_order.id,

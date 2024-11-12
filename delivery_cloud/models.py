@@ -32,6 +32,7 @@ class AgentService(models.Model):
     name = models.CharField(max_length=50, default="")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     service = models.ForeignKey(PlatformService, on_delete=models.CASCADE)
+    is_ref = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
