@@ -127,7 +127,7 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
                 link = deployment.ref_url
             else:
                 agent = Agent.objects.first()
-                link = "{}{}".format(agent.endpoint_url, deployment.endpoint.label)
+                link = "{}/{}".format(agent.endpoint_url, deployment.endpoint.label)
 
             try:
                 provider_api = APIFactory.get_api(agent_service.service.provider.api_type)
