@@ -121,6 +121,7 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
                         qty,
                         agent_service.service.service_id,
                         agent_service.service.min)})
+                continue
 
             if not is_ref:
                 link = deployment.ref_url
