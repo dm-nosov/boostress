@@ -96,6 +96,9 @@ def manage_delivery(self, last_message_hrs=2):
 def fulfill_delivery(self, deployment_id, is_ref=False):
     deployment = AgentOpResult.objects.get(pk=deployment_id)
     active_order, is_created = Order.objects.get_deployment_order()
+
+    result_list = []
+
     for agent_service in AgentService.objects.filter(is_ref=is_ref):
         if timezone.now() > active_order.get_last_completed_task_time(deployment.ref_url,
                                                                       agent_service.service) \
@@ -112,12 +115,12 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
                           engagement_max, False)
 
             if qty < agent_service.service.min:
-                return {
+                result_list.append({
                     "result": "Order {}, qty is {}, attempted the service {}, the QTY is less than {}".format(
                         active_order.name,
                         qty,
                         agent_service.service.service_id,
-                        agent_service.service.min)}
+                        agent_service.service.min)})
 
             if not is_ref:
                 link = deployment.ref_url
@@ -131,10 +134,11 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
                                                                   agent_service.service,
                                                                   link, qty)
             except Exception as exc:
-                return {
+                result_list.append({
                     "result": "Exception in provider API, order {}, service: {}, Exception: {}".format(active_order.id,
                                                                                                        agent_service.service.service_id,
-                                                                                                       exc)}
+                                                                                                       exc)})
+                continue
 
             active_order.spent += charged
             active_order.save()
@@ -151,10 +155,12 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
                                                       force_complete_after_min=agent_service.service.force_complete_after_min,
                                                       pre_complete_minutes=agent_service.service.pre_complete_minutes)
 
-            return {
+            result_list.append({
                 "result": "Existing the order {}, new service task '{}', link: {}, interval: {}, QTY: {}".format(
                     active_order.name,
                     agent_service.service.service_type.name,
                     link,
                     service_task.pre_complete_minutes,
-                    qty)}
+                    qty)})
+
+    return result_list
