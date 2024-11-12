@@ -11,7 +11,7 @@ from provider_api.common import APIFactory
 
 
 @shared_task(bind=True)
-def deploy_resource(self, last_message_hrs=4):
+def deploy_resource(self, last_message_hrs=4, probability_threshold=3):
     agent = Agent.objects.first()
     endpoints = AgentOpResult.objects.get_available_endpoints(last_message_hrs)
 
@@ -21,12 +21,12 @@ def deploy_resource(self, last_message_hrs=4):
     endpoint = random.choice(endpoints)
 
     probability = random.randint(1, 10)
-    if probability < 3:
+    if probability < probability_threshold:
         op_type = OP_FWD
     else:
         op_type = OP_SEND
 
-    last_deployments = AgentOpResult.objects.exclude(endpoint=endpoint).exclude(is_fwd=True)[:10]
+    last_deployments = AgentOpResult.objects.exclude(endpoint=endpoint).exclude(is_fwd=True).order_by('-id')[0:10]
     if op_type == OP_FWD and not last_deployments:
         return {"endpoint": endpoint.name, "operation": op_type, "detail": "Nothing to forward, exiting"}
 
@@ -144,7 +144,7 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
                                                       service=agent_service.service,
                                                       link_type=agent_service.service.link_type,
                                                       order=active_order,
-                                                      link=deployment.ref_url,
+                                                      link=link,
                                                       ext_order_id=ext_order_id,
                                                       spent=charged,
                                                       extras="qty={}".format(qty),
@@ -152,8 +152,9 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
                                                       pre_complete_minutes=agent_service.service.pre_complete_minutes)
 
             return {
-                "result": "Existing the order {}, new service task '{}', interval: {}, QTY: {}".format(
+                "result": "Existing the order {}, new service task '{}', link: {}, interval: {}, QTY: {}".format(
                     active_order.name,
                     agent_service.service.service_type.name,
+                    link,
                     service_task.pre_complete_minutes,
                     qty)}
