@@ -60,7 +60,7 @@ def create_resource(agent, endpoint, another_endpoint=None):
                                        ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label,
                                                                  endpoint.message_qty))
     if use_reference:
-        fulfill_delivery.apply_async((out.id, use_reference), countdown=60 * 5)
+        fulfill_delivery.apply_async((out.id, "{}/{}".format(agent.endpoint_url, another_endpoint.label)), countdown=60 * 5)
     return {"status": "success", "created": out.ref_url}
 
 
@@ -76,7 +76,7 @@ def fwd_resource(agent, endpoint, op_resource):
                                        ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label,
                                                                  endpoint.message_qty),
                                        is_fwd=True)
-    fulfill_delivery.apply_async((out.id, True), countdown=60 * 5)
+    fulfill_delivery.apply_async((out.id, "{}/{}".format(agent.endpoint_url, op_resource.endpoint.label)), countdown=60 * 5)
     return {"status": "success", "created": out.ref_url}
 
 
@@ -93,7 +93,8 @@ def manage_delivery(self, last_message_hrs=2):
 
 
 @shared_task(bind=True)
-def fulfill_delivery(self, deployment_id, is_ref=False):
+def fulfill_delivery(self, deployment_id, ref=""):
+    is_ref = bool(ref)
     deployment = AgentOpResult.objects.get(pk=deployment_id)
     active_order, is_created = Order.objects.get_deployment_order()
 
@@ -126,8 +127,7 @@ def fulfill_delivery(self, deployment_id, is_ref=False):
             if not is_ref:
                 link = deployment.ref_url
             else:
-                agent = Agent.objects.first()
-                link = "{}/{}".format(agent.endpoint_url, deployment.endpoint.label)
+                link = ref
 
             try:
                 provider_api = APIFactory.get_api(agent_service.service.provider.api_type)
