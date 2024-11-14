@@ -15,7 +15,7 @@ def time_difference_min(initial_moment: datetime):
 
 def time_decay(minutes_passed):
     a = 0.1
-    b = 0.5
+    b = 0.8
     current_probability = 1 / (1 + a * (minutes_passed ** b))
     random_factor = random.uniform(-0.07, 0.07)
     return max(current_probability + random_factor, 0)
