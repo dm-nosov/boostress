@@ -26,7 +26,9 @@ def deploy_resource(self, last_message_hrs=4, probability_threshold=3):
     else:
         op_type = OP_SEND
 
-    last_deployments = AgentOpResult.objects.exclude(endpoint=endpoint).exclude(is_fwd=True).order_by('-id')[0:10]
+    last_deployments = AgentOpResult.objects.exclude(endpoint=endpoint).exclude(is_fwd=True).filter(
+        created__lte=timezone.now() - timezone.timedelta(days=2)
+    ).order_by('-id')[0:10]
     if op_type == OP_FWD and not last_deployments:
         return {"endpoint": endpoint.name, "operation": op_type, "detail": "Nothing to forward, exiting"}
 
@@ -60,7 +62,8 @@ def create_resource(agent, endpoint, another_endpoint=None):
                                        ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label,
                                                                  endpoint.message_qty))
     if use_reference:
-        fulfill_delivery.apply_async((out.id, "{}/{}".format(agent.endpoint_url, another_endpoint.label)), countdown=60 * 5)
+        fulfill_delivery.apply_async((out.id, "{}/{}".format(agent.endpoint_url, another_endpoint.label)),
+                                     countdown=60 * 5)
     return {"status": "success", "created": out.ref_url}
 
 
@@ -76,7 +79,8 @@ def fwd_resource(agent, endpoint, op_resource):
                                        ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label,
                                                                  endpoint.message_qty),
                                        is_fwd=True)
-    fulfill_delivery.apply_async((out.id, "{}/{}".format(agent.endpoint_url, op_resource.endpoint.label)), countdown=60 * 5)
+    fulfill_delivery.apply_async((out.id, "{}/{}".format(agent.endpoint_url, op_resource.endpoint.label)),
+                                 countdown=60 * 5)
     return {"status": "success", "created": out.ref_url}
 
 
@@ -103,7 +107,7 @@ def fulfill_delivery(self, deployment_id, ref=""):
     for agent_service in AgentService.objects.filter(is_ref=is_ref):
         if timezone.now() > active_order.get_last_completed_task_time(deployment.ref_url,
                                                                       agent_service.service) \
-            and timezone.timedelta(
+                and timezone.timedelta(
             minutes=agent_service.service.start_after) < timezone.now() - deployment.created < timezone.timedelta(
             minutes=agent_service.service.end_after):
             engagement_min, engagement_max = EngagementConfig.objects.get_config(link_type=active_order.link_type,
