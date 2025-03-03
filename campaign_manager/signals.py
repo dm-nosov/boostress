@@ -24,6 +24,8 @@ def update_task_result(sender=None, task_id=None, task=None, **kwargs):
         task_result.save(update_fields=['periodic_task_name', 'worker'])
     except TaskResult.DoesNotExist:
         pass  # Handle the case where the result isn't found
+    except AttributeError:
+        pass
 
 
 @receiver(post_save, sender=Order)
