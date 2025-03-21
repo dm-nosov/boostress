@@ -88,6 +88,8 @@ services:
     depends_on:
       - message_broker
       - db
+    healthcheck:
+      test: ["CMD", "celery", "-A", "boostress", "inspect", "ping"]
 
 secrets:
   django_secret_key:
