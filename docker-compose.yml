@@ -16,6 +16,7 @@ services:
       - django_secret_key
       - postgres_password
       - admin_password
+      - redis_password
     depends_on:
       - db
       - message_broker
@@ -58,6 +59,9 @@ services:
     hostname: message_broker
     ports:
       - "6379:6379"
+    command: ["redis-server", "--requirepass", "$(cat /run/secrets/redis_password)" ]
+    secrets:
+      - redis_password    
 
   scheduler:
     image: ghcr.io/dm-nosov/boostress/boostress:latest
@@ -68,6 +72,7 @@ services:
       - POSTGRES_USER=boostress
     secrets:
       - postgres_password
+      - redis_password
     volumes:
       - ./logs/celery/scheduler.log:/app/logs/celery/scheduler.log
     depends_on:
@@ -83,6 +88,7 @@ services:
       - POSTGRES_USER=boostress
     secrets:
       - postgres_password
+      - redis_password
     volumes:
       - ./logs/celery/worker.log:/app/logs/celery/worker.log
     depends_on:
