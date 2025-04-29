@@ -28,7 +28,7 @@ Technical stack:
 
 ```
 cd boostress
-chmod 777 -R logs
+chmod -R 777 logs
 ```
 
 3. Initialize the swarm
