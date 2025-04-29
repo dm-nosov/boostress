@@ -41,6 +41,7 @@ chmod 777 -R logs
 echo "ENTER YOUR KEY" | docker secret create django_secret_key -
 echo "ENTER YOUR KEY" | docker secret create postgres_password -
 echo "ENTER YOUR KEY" | docker secret create admin_password -
+echo "ENTER YOUR KEY" | docker secret create redis_password -
 ```
 
 

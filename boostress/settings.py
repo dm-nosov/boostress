@@ -16,6 +16,16 @@ from django.core.management.utils import get_random_secret_key
 DB_PASSWORD = ""
 SECRET_KEY = ""
 
+import os
+
+def get_redis_password():
+    password_file = os.environ.get("REDIS_PASSWORD_FILE")
+    if password_file and os.path.isfile(password_file):
+        with open(password_file) as f:
+            return f.read().strip()
+
+REDIS_PASSWORD = get_redis_password()
+
 from .utils import get_persistent_secret_key
 # Import generated code from Docker secrets local_settings.py
 from .local_settings import *
@@ -152,6 +162,7 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 CELERY_BROKER_URL = 'redis://message_broker:6379/0'
+CELERY_BROKER_URL = f"redis://:{REDIS_PASSWORD}@message_broker:6379/0"
 
 if DEBUG:
     CELERY_TASK_ALWAYS_EAGER = True
