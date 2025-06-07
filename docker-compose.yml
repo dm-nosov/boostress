@@ -4,6 +4,7 @@ services:
     hostname: web
     environment:
       - DJANGO_DEBUG=False
+      - TRUSTED_ORIGINS=http://localhost
       - VIRTUAL_HOST=localhost
       - ALLOWED_HOSTS=localhost
       - POSTGRES_DB=boostress
