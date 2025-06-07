@@ -45,18 +45,23 @@ echo "ENTER YOUR KEY" | docker secret create redis_password -
 ```
 
 
-5. Add nginx to the host machine (for example, for the SSL support) and add this directive to proxy the traffic to the internal nginx container.
+5. Host‑level Nginx (or any reverse proxy) can be used for SSL termination in front of the internal Nginx container.
 
-```
-location / {
-    proxy_pass http://localhost:1080;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
-**NOTE**: Instead of using the frontier nginx, you can modify the [docker-compose.yml](https://github.com/dm-nosov/boostress/blob/master/docker-compose.yml), nginx description, changing `"1080:80"` port binding to `"0.0.0.0:1080:80"` so you can run http://localhost:1080 on your host machine. In this case please keep the localhost hostname.
+   By default, the included Docker Compose setup provides an `nginx` service listening on port 1080, serving static assets from the shared `static_files` volume and proxying application traffic to the Django app.
+
+   Update `VIRTUAL_HOST` in `docker-compose.yml` to your desired domain, then add this snippet to your host Nginx configuration:
+
+   ```nginx
+   location / {
+       proxy_pass http://localhost:1080;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto $scheme;
+   }
+   ```
+
+   **Note:** If you need to expose the internal Nginx container directly on all interfaces for local testing (without a host‑level proxy), change the port mapping for the `nginx` service in `docker-compose.yml` from `"1080:80"` to `"0.0.0.0:1080:80"`.
 
 6. Replace 'localhost' with your desired external virtual host in docker-compose.yml
 ![image](https://github.com/user-attachments/assets/29e9d33a-aac1-4dd0-ac14-5ca14992ff3e)

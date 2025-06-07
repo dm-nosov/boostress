@@ -18,6 +18,5 @@ python manage.py migrate
 # Collect static files into the mounted volume
 python manage.py collectstatic --noinput
 
-# Start uWSGI server
 # Start Gunicorn server
 exec gunicorn boostress.wsgi:application --bind 0.0.0.0:8000

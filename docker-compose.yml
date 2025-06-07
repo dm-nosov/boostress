@@ -38,23 +38,6 @@ services:
     secrets:
       - postgres_password
 
-  nginx:
-    image: nginx:latest
-    hostname: nginx
-    volumes:
-      - ./logs/nginx:/var/log/nginx
-      - conf_files:/app/conf
-      - static_files:/var/www/static
-    environment:
-      - VIRTUAL_HOST=localhost
-    entrypoint: ["/app/conf/nginx/add_env_vars.sh"]
-    command: ["nginx", "-g", "daemon off;"]
-    ports:
-      - "1080:80"
-    depends_on:
-      - web
-      - db
-
   message_broker:
     image: redis:latest
     hostname: message_broker
@@ -81,6 +64,7 @@ services:
       - message_broker
       - db
 
+
   worker:
     image: ghcr.io/dm-nosov/boostress/boostress:latest
     command: ["/app/conf/celery/worker_launch.sh"]
@@ -100,15 +84,27 @@ services:
     healthcheck:
       test: ["CMD", "celery", "-A", "boostress", "inspect", "ping"]
 
-secrets:
-  django_secret_key:
-    external: true
-  postgres_password:
-    external: true
-  admin_password:
-    external: true
-  redis_password:
-    external: true   
+  nginx:
+    image: nginx:alpine
+    hostname: nginx
+    ports:
+      - "127.0.0.1:1080:80"
+    volumes:
+      - static_files:/var/www/static
+      - conf_files:/app/conf
+    entrypoint: ["/app/conf/nginx/add_env_vars.sh", "nginx", "-g", "daemon off;"]
+    depends_on:
+      - web
+
+  secrets:
+    django_secret_key:
+      external: true
+    postgres_password:
+      external: true
+    admin_password:
+      external: true
+    redis_password:
+      external: true
 
 volumes:
   static_files:

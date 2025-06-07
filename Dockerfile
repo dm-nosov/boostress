@@ -41,5 +41,5 @@ USER django
 # Expose port 8000
 EXPOSE 8000
 
-# Start migrations and uWSGI server
+# Start migrations and start Django (Gunicorn) server
 CMD ["/app/conf/django_launch/launch_tasks.sh"]
