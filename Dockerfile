@@ -25,7 +25,6 @@ RUN pip install --upgrade pip \
 # Copy project files
 COPY . /app/
 
-RUN python manage.py collectstatic --noinput
 
 RUN pip install uwsgi
 

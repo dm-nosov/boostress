@@ -12,7 +12,11 @@ chmod +x /app/conf/django_secrets/inject_secrets.sh
 /app/conf/django_secrets/inject_secrets.sh
 
 # Once the database is ready, run migrations
+# Once the database is ready, run migrations
 python manage.py migrate
+
+# Collect static files into the mounted volume
+python manage.py collectstatic --noinput
 
 # Start uWSGI server
 exec uwsgi --ini /app/conf/uwsgi/uwsgi.ini
