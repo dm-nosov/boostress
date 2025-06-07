@@ -60,9 +60,9 @@ services:
     hostname: message_broker
     ports:
       - "6379:6379"
-    command: ["redis-server", "--requirepass", "$(cat /run/secrets/redis_password)" ]
+    command: ["sh", "-c", "redis-server --requirepass $$(cat /run/secrets/redis_password)"]
     secrets:
-      - redis_password    
+      - redis_password
 
   scheduler:
     image: ghcr.io/dm-nosov/boostress/boostress:latest
