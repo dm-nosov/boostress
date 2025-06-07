@@ -44,10 +44,9 @@ SECRET_KEY = SECRET_KEY or get_persistent_secret_key(SECRET_KEY_FILE)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 CSRF_TRUSTED_ORIGINS = os.getenv('ALLOWED_HOSTS', '').split(',')
-if DEBUG:
-    ALLOWED_HOSTS=['localhost']
 
 # Application definition
 
