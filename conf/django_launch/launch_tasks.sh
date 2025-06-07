@@ -19,4 +19,5 @@ python manage.py migrate
 python manage.py collectstatic --noinput
 
 # Start uWSGI server
-exec uwsgi --ini /app/conf/uwsgi/uwsgi.ini
+# Start Gunicorn server
+exec gunicorn boostress.wsgi:application --bind 0.0.0.0:8000

@@ -26,7 +26,7 @@ RUN pip install --upgrade pip \
 COPY . /app/
 
 
-RUN pip install uwsgi
+RUN pip install gunicorn
 
 # Prepare the scripts on run
 RUN find /app/conf -name "*.sh" -type f -exec chmod +x {} +
@@ -37,9 +37,6 @@ RUN chown -R django:django /app
 
 # Switch to non-root user
 USER django
-
-# Configure uWSGI
-COPY conf/uwsgi/uwsgi.ini /app/
 
 # Expose port 8000
 EXPOSE 8000
