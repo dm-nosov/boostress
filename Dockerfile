@@ -26,7 +26,10 @@ RUN pip install --upgrade pip \
 COPY . /app/
 
 
+
+# Install Gunicorn and collect static files at build time (to initialize the static volume with correct ownership)
 RUN pip install gunicorn
+RUN python manage.py collectstatic --noinput
 
 # Prepare the scripts on run
 RUN find /app/conf -name "*.sh" -type f -exec chmod +x {} +

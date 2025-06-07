@@ -15,8 +15,6 @@ chmod +x /app/conf/django_secrets/inject_secrets.sh
 # Once the database is ready, run migrations
 python manage.py migrate
 
-# Collect static files into the mounted volume
-python manage.py collectstatic --noinput
 
 # Start Gunicorn server
 exec gunicorn boostress.wsgi:application --bind 0.0.0.0:8000

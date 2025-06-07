@@ -96,15 +96,15 @@ services:
     depends_on:
       - web
 
-  secrets:
-    django_secret_key:
-      external: true
-    postgres_password:
-      external: true
-    admin_password:
-      external: true
-    redis_password:
-      external: true
+secrets:
+  django_secret_key:
+    external: true
+  postgres_password:
+    external: true
+  admin_password:
+    external: true
+  redis_password:
+    external: true
 
 volumes:
   static_files:
