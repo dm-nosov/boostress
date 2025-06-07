@@ -22,7 +22,7 @@ services:
       - db
       - message_broker
     volumes:
-      - ./logs/django/django_debug.log:/app/logs/django/django_debug.log
+      - ./logs/django:/app/logs/django
       - static_files:/app/static
       - conf_files:/app/conf
 
