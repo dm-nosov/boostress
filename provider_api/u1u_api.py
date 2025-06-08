@@ -111,14 +111,26 @@ class ProviderU1UApi(ProviderAPIInterface):
 
         task_info = json.loads(service.service_meta)
 
-        if folder_id:
-            task_id = cls._get_task(provider, folder_id)
-            cls._update_task_limit(provider, task_id, qty)
-            cls._push_task(provider, task_id)
-        else:
+        # Ensure every ServiceTask created in Boostress maps to a *unique* task on the
+        # provider side so that ext_order_id is not duplicated.  Even if a folder for
+        # the same resource already exists we still create a *new* task instead of
+        # re-using (and topping-up) the previous one.  This guarantees that
+        # ServiceTask.ext_order_id stays unique per provider which prevents
+        # ServiceTask.MultipleObjectsReturned errors in status-update code.
+
+        if not folder_id:
+            # First interaction with this resource – create the folder once.
             folder_id = cls._create_folder(provider, folder_name)
-            task_id = cls._add_task(provider, folder_id, link, task_info)
-            cls._update_task_limit(provider, task_id, qty)
+
+        # Always create a *new* task inside the folder so that we receive a new
+        # provider-side task_id every time.
+        task_id = cls._add_task(provider, folder_id, link, task_info)
+
+        # Increase its limit immediately to match the requested quantity.
+        cls._update_task_limit(provider, task_id, qty)
+
+        # Optionally push the task to the top so it starts quickly.
+        cls._push_task(provider, str(task_id))
 
         return task_id, task_info["price"] * qty
 
