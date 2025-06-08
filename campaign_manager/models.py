@@ -46,9 +46,30 @@ class Provider(models.Model):
             flat=True).distinct())
 
     def get_active_tasks(self):
-        return ",".join(list(
-            ServiceTask.objects.get_active_tasks().filter(provider=self).values_list(
-                "ext_order_id", flat=True)))
+        """Return a comma-separated list of ext_order_id values that
+        • belong to this provider
+        • are still in an *active* state (see ServiceTaskManager.get_active_tasks)
+        • were created within the last two days.
+
+        Any active tasks older than two days are automatically marked as
+        Completed so that the calling code never sees them again.  This keeps
+        the provider-side list small and prevents collisions with identical
+        ext_order_id values coming from other providers.
+        """
+
+        cutoff = timezone.now() - timedelta(days=2)
+
+        qs = ServiceTask.objects.get_active_tasks().filter(provider=self)
+
+        # 1. Auto-complete tasks that have been hanging around too long
+        qs.filter(created__lt=cutoff).update(status=Status.COMPLETED)
+
+        # 2. Return only recent active tasks (unique ids)
+        recent_ids = (qs.filter(created__gte=cutoff)
+                        .values_list("ext_order_id", flat=True)
+                        .distinct())
+
+        return ",".join(map(str, recent_ids))
 
     def force_complete_tasks(self):
         active_tasks = ServiceTask.objects.get_active_tasks().filter(provider=self)
