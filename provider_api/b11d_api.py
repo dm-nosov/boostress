@@ -20,12 +20,22 @@ class ProviderB11DApi(ProviderAPIInterface):
                                                   })
         actual_statuses = r.json()
         for order_id in actual_statuses:
-            task = ServiceTask.objects.get(ext_order_id=order_id)
-            task.status = Status(actual_statuses[order_id]['status'])
-            if task.status == Status.COMPLETED and timezone.now() < task.created + timedelta(
-                    minutes=task.pre_complete_minutes):
-                task.status = Status.PRE_COMPLETE
-            task.save()
+            new_status = Status(actual_statuses[order_id]['status'])
+
+            # scope to the current provider to avoid duplicate ext_order_id across providers
+            qs = ServiceTask.objects.filter(provider=provider, ext_order_id=order_id)
+
+            if not qs.exists():
+                continue  # nothing to update
+
+            # apply PRE_COMPLETE window logic for completed tasks
+            if new_status == Status.COMPLETED:
+                now = timezone.now()
+                pre_complete_minutes = qs.first().pre_complete_minutes
+                if now < qs.first().created + timedelta(minutes=pre_complete_minutes):
+                    new_status = Status.PRE_COMPLETE
+
+            qs.update(status=new_status)
 
     @classmethod
     def create_order(cls, provider: Provider, service: PlatformService, link, qty=1):
