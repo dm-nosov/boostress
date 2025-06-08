@@ -234,3 +234,18 @@ class EngagementConfig(models.Model):
     min = models.IntegerField(default=1)
     max = models.IntegerField(default=1)
     objects = EngagementConfigManager()
+
+
+def _generate_api_key():
+    import secrets
+    return secrets.token_hex(20)
+
+
+class APIKey(models.Model):
+    key = models.CharField(max_length=40, primary_key=True, default=_generate_api_key, editable=False)
+    name = models.CharField(max_length=100, blank=True, default='')
+    is_active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.key})"

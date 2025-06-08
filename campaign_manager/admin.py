@@ -5,8 +5,17 @@ from django.utils.html import format_html
 
 from boostress.local_settings import *
 from django.contrib.auth import get_user_model
-from .models import Provider, ServiceType, ProviderPlatform, PlatformService, ServiceTask, Order, ServiceHealthLog, \
-    EngagementConfig
+from .models import (
+    Provider,
+    ServiceType,
+    ProviderPlatform,
+    PlatformService,
+    ServiceTask,
+    Order,
+    ServiceHealthLog,
+    EngagementConfig,
+    APIKey,
+)
 from django.db.models.signals import post_migrate
 from django_celery_results.models import TaskResult
 from django_celery_results.admin import TaskResultAdmin
@@ -112,6 +121,7 @@ admin.site.register(ServiceTask, ServiceTaskAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(ServiceHealthLog, ServiceHealthLogAdmin)
 admin.site.register(EngagementConfig, EngagementConfigAdmin)
+admin.site.register(APIKey)
 
 ADMIN_USER = os.getenv('ADMIN_USER', 'admin')
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'email@example.com')

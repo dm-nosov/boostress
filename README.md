@@ -29,6 +29,7 @@ Technical stack:
 ```
 cd boostress
 chmod -R 777 logs
+chmod -R 777 conf
 ```
 
 3. Initialize the swarm
@@ -49,22 +50,28 @@ echo "ENTER YOUR KEY" | docker secret create redis_password -
 
    By default, the included Docker Compose setup provides an `nginx` service listening on port 1080, serving static assets from the shared `static_files` volume and proxying application traffic to the Django app.
 
-   Update `VIRTUAL_HOST` in `docker-compose.yml` to your desired domain, then add this snippet to your host Nginx configuration:
+   Update `ALLOWED_HOSTS` and `TRUSTED_ORIGINS` in `docker-compose.yml` to your desired domain in the `web` service configuration.
+
+Use the following host nginx config for the related virtual host:
 
    ```nginx
-   location / {
-       proxy_pass http://localhost:1080;
+    location / {
+       proxy_pass http://127.0.0.1:8000;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
        proxy_set_header X-Forwarded-Proto $scheme;
-   }
+    }
+
+    location /static/ {                                                                                                                                              
+        proxy_pass http://127.0.0.1:1080/static/;                                                                                                                    
+        proxy_set_header Host              $host;                                                                                                                    
+        proxy_set_header X-Real-IP         $remote_addr;                                                                                                             
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;                                                                                               
+        proxy_set_header X-Forwarded-Proto $scheme;                                                                                                                  
+    } 
+   
    ```
-
-   **Note:** If you need to expose the internal Nginx container directly on all interfaces for local testing (without a host‑level proxy), change the port mapping for the `nginx` service in `docker-compose.yml` from `"1080:80"` to `"0.0.0.0:1080:80"`.
-
-6. Replace 'localhost' with your desired external virtual host in docker-compose.yml
-![image](https://github.com/user-attachments/assets/29e9d33a-aac1-4dd0-ac14-5ca14992ff3e)
 
 
 7. Deploy the stack to your swarm
