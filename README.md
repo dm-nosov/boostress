@@ -92,4 +92,46 @@ Use the following host nginx config for the related virtual host:
 - The code uses model managers and model methods to clearly explain the business logic (object responsibilities) instead of using ORM methods directly.
 - The app integrates the default admin UI instead of creating custom views.
 - The scheduler and results are available directly from the admin UI.
-  
+
+## External API (Order Creation)
+
+Boostress exposes a simple JSON API endpoint for external systems to submit new orders.
+
+**Endpoint:** `POST /home/api/orders/`
+
+**Authentication:** Include your API key in the `X-API-KEY` HTTP header.
+
+**Request JSON Payload:**
+```json
+{
+  "link": "https://example.com/item/123",
+  "platform": "PlatformName"
+}
+```
+
+You can also supply optional fields in the same JSON payload:
+- `name`: human-readable order name
+- `link_type`: e.g. `"https"` or `"http"`
+- `budget`: numeric budget value
+- `deadline`: ISO 8601 datetime string (e.g. `"2025-12-31T23:59:59Z"`)
+- `time_sensible`: boolean
+- `total_followers`: integer
+- `natural_time_cycles`: boolean
+
+**Success Response:**
+- **201 Created** if a new order was inserted, or **200 OK** if an existing order already existed.
+```json
+{ "id": 123, "created": true }
+```
+
+**Error Responses:**
+- **403 Forbidden** for missing or invalid API key
+- **400 Bad Request** for malformed JSON or missing required fields (`link`, `platform`)
+
+**Example `curl` Invocation:**
+```bash
+curl -X POST https://your-domain/home/api/orders/ \
+     -H "Content-Type: application/json" \
+     -H "X-API-KEY: your_api_key_here" \
+     -d '{"link":"https://example.com/item/123","platform":"PlatformName"}'
+```
