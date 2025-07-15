@@ -39,5 +39,23 @@ def api_create_order(request):
                   'natural_time_cycles'):
         if field in data:
             defaults[field] = data[field]
+    
+    # Handle extras parameter
+    if 'extras' in data:
+        extras_value = data['extras']
+        # Validate that extras is a valid JSON string
+        if isinstance(extras_value, str):
+            try:
+                json.loads(extras_value)
+                defaults['extras'] = extras_value
+            except json.JSONDecodeError:
+                return JsonResponse({'error': 'extras must be a valid JSON string'}, status=400)
+        else:
+            # If extras is already a dict/list, convert it to JSON string
+            try:
+                defaults['extras'] = json.dumps(extras_value)
+            except (TypeError, ValueError):
+                return JsonResponse({'error': 'extras must be JSON-serializable'}, status=400)
+    
     order, created = Order.objects.get_or_create(link=link, platform=platform_obj, defaults=defaults)
     return JsonResponse({'id': order.id, 'created': created}, status=201 if created else 200)

@@ -180,6 +180,7 @@ class Order(models.Model):
     total_followers = models.IntegerField(default=50)
     natural_time_cycles = models.BooleanField(default=False,
                                               help_text="Use with something permanently running to mimic the changes to datetime activity cycles")
+    extras = models.TextField(default="{}")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     objects = OrderManager()

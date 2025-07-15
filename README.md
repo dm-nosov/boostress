@@ -117,6 +117,7 @@ You can also supply optional fields in the same JSON payload:
 - `time_sensible`: boolean
 - `total_followers`: integer
 - `natural_time_cycles`: boolean
+- `extras`: JSON string containing additional data to pass to provider APIs (see below)
 
 **Success Response:**
 - **201 Created** if a new order was inserted, or **200 OK** if an existing order already existed.
@@ -134,4 +135,26 @@ curl -X POST https://your-domain/home/api/orders/ \
      -H "Content-Type: application/json" \
      -H "X-API-KEY: your_api_key_here" \
      -d '{"link":"https://example.com/item/123","platform":"PlatformName"}'
+```
+
+### Using the `extras` Parameter
+
+The `extras` parameter allows you to pass additional data to provider APIs. This data will be merged into the service's `service_meta` when certain conditions are met.
+
+**Format:** The `extras` parameter accepts either:
+- A JSON string: `"extras": "{\"custom_field\": \"value\", \"another_field\": \"data\"}"`
+- A JSON object: `"extras": {"custom_field": "value", "another_field": "data"}`
+
+**Special Behavior:** The `extras` data will only be merged into services that have `"task_type": "c"` in their `service_meta`. This allows you to dynamically add provider-specific parameters at order creation time for specific service types.
+
+**Example with extras:**
+```bash
+curl -X POST https://your-domain/home/api/orders/ \
+     -H "Content-Type: application/json" \
+     -H "X-API-KEY: your_api_key_here" \
+     -d '{
+       "link": "https://example.com/item/123",
+       "platform": "PlatformName",
+       "extras": "{\"task_type\": \"c\", \"custom_param\": \"value\"}"
+     }'
 ```

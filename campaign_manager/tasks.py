@@ -1,3 +1,4 @@
+import json
 import random
 import traceback
 from datetime import timedelta
@@ -84,6 +85,22 @@ def process_order(self, order_id):
                                                                                                       qty,
                                                                                                       service.service_id,
                                                                                                       service.min)}
+
+    # Merge extras into service_meta only for comments service (task_type == 'c')
+    try:
+        # First, parse the service_meta to check task_type
+        service_meta = json.loads(service.service_meta)
+        
+        # Only add extras if this is a comments service
+        if service_meta.get('task_type') == 'c':
+            # Parse extras and merge into service_meta
+            extras = json.loads(active_order.extras)
+            merged_meta = {**service_meta, **extras}
+            # Update service with merged meta
+            service.service_meta = json.dumps(merged_meta)
+    except (json.JSONDecodeError, AttributeError):
+        # If service_meta or extras is not valid JSON or doesn't exist, continue with original service_meta
+        pass
 
     try:
         ext_order_id, charged = provider_api.create_order(provider, service, active_order.link, qty)
