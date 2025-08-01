@@ -33,14 +33,19 @@ def deploy_resource(self, last_message_hrs=4, probability_threshold=3):
         return {"endpoint": endpoint.name, "operation": op_type, "detail": "Nothing to forward, exiting"}
 
     if op_type == OP_SEND:
-        another_endpoint = Endpoint.objects.exclude(id=endpoint.id).order_by('?')[0]
+        other_endpoints = Endpoint.objects.exclude(id=endpoint.id)
+        another_endpoint = None
+        if len(other_endpoints) > 0:
+            another_endpoint = random.choice(other_endpoints)
         out = create_resource(agent, endpoint, another_endpoint)
-        return {"endpoint": endpoint.name, "operation": op_type, "ref": another_endpoint.name, "out": out}
+        return {"endpoint": endpoint.name, "operation": op_type, "out": out}
 
     elif op_type == OP_FWD:
         op_resource = random.choice(last_deployments)
         out = fwd_resource(agent, endpoint, op_resource)
         return {"endpoint": endpoint.name, "operation": op_type, "resource": op_resource.ref_url, "out": out}
+
+    return None
 
 
 def create_resource(agent, endpoint, another_endpoint=None):
@@ -61,9 +66,8 @@ def create_resource(agent, endpoint, another_endpoint=None):
     out = AgentOpResult.objects.create(endpoint=endpoint, ref_id=op_id,
                                        ref_url="{}/{}/{}".format(agent.endpoint_url, endpoint.label,
                                                                  endpoint.message_qty))
-    if use_reference:
-        fulfill_delivery.apply_async((out.id, "{}/{}".format(agent.endpoint_url, another_endpoint.label)),
-                                     countdown=60 * 5)
+
+    Order.objects.get_deployment_order_by_id(out.id, out.endpoint, out.ref_url)
     return {"status": "success", "created": out.ref_url}
 
 
