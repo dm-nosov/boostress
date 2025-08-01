@@ -39,9 +39,15 @@ class AgentService(models.Model):
 
 
 class AgentResource(models.Model):
+    RESOURCE_TYPE_CHOICES = [
+        ('photo', 'Photo'),
+        ('video', 'Video'),
+    ]
+    
     created = models.DateTimeField(auto_now_add=True)
     url = models.CharField(max_length=255, default="")
     is_active = models.BooleanField(default=True)
+    resource_type = models.CharField(max_length=10, choices=RESOURCE_TYPE_CHOICES, default='photo')
 
 
 class Endpoint(models.Model):
@@ -49,6 +55,7 @@ class Endpoint(models.Model):
     name = models.CharField(max_length=50, default="")
     label = models.CharField(max_length=50, default="")
     message_qty = models.IntegerField(default=0)
+    json_params = models.JSONField(default=dict)
 
     def __str__(self):
         return self.name

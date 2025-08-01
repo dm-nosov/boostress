@@ -158,3 +158,44 @@ curl -X POST https://your-domain/home/api/orders/ \
        "extras": "{\"task_type\": \"c\", \"custom_param\": \"value\"}"
      }'
 ```
+
+## External API (Resource Creation)
+
+Boostress also exposes a JSON API endpoint for creating AgentResource objects, which are used by the delivery cloud system for content distribution.
+
+**Endpoint:** `POST /delivery/api/resources/`
+
+**Authentication:** Include your API key in the `X-API-KEY` HTTP header.
+
+**Request JSON Payload:**
+```json
+{
+  "url": "https://example.com/media/photo.jpg"
+}
+```
+
+You can also supply optional fields in the same JSON payload:
+- `resource_type`: either `"photo"` or `"video"` (defaults to `"photo"`)
+- `is_active`: boolean indicating if the resource is active (defaults to `true`)
+
+**Success Response:**
+- **201 Created** when a new resource is created.
+```json
+{ 
+  "id": 456, 
+  "url": "https://example.com/media/photo.jpg", 
+  "resource_type": "photo" 
+}
+```
+
+**Error Responses:**
+- **403 Forbidden** for missing or invalid API key
+- **400 Bad Request** for malformed JSON, missing required fields, or invalid `resource_type` values
+
+**Example `curl` Invocation:**
+```bash
+curl -X POST https://your-domain/delivery/api/resources/ \
+     -H "Content-Type: application/json" \
+     -H "X-API-KEY: your_api_key_here" \
+     -d '{"url":"https://example.com/media/video.mp4","resource_type":"video"}'
+```

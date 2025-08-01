@@ -44,14 +44,14 @@ def deploy_resource(self, last_message_hrs=4, probability_threshold=3):
 
 
 def create_resource(agent, endpoint, another_endpoint=None):
-    resource = AgentResource.objects.filter(is_active=True).order_by('?')[0]
+    resource = random.choice(AgentResource.objects.filter(is_active=True).order_by('-id')[:10])
     op_id = 0
     use_reference = False
     if another_endpoint and random.randint(1, 10) < 3:
-        op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, another_endpoint.label)
+        op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, another_endpoint.label, resource.resource_type)
         use_reference = True
     else:
-        op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, None)
+        op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, None, resource.resource_type)
 
     if op_id == 0:
         return {"status": "error", "details": "CREATE: op_id is 0", "endpoint": endpoint.name, "operation": "create"}
@@ -100,7 +100,7 @@ def manage_delivery(self, last_message_hrs=2):
 def fulfill_delivery(self, deployment_id, ref=""):
     is_ref = bool(ref)
     deployment = AgentOpResult.objects.get(pk=deployment_id)
-    active_order, is_created = Order.objects.get_deployment_order()
+    active_order, is_created = Order.objects.get_deployment_order_by_id(deployment_id, deployment.endpoint)
 
     result_list = []
 

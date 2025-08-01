@@ -66,8 +66,8 @@ class Provider(models.Model):
 
         # 2. Return only recent active tasks (unique ids)
         recent_ids = (qs.filter(created__gte=cutoff)
-                        .values_list("ext_order_id", flat=True)
-                        .distinct())
+                      .values_list("ext_order_id", flat=True)
+                      .distinct())
 
         return ",".join(map(str, recent_ids))
 
@@ -165,6 +165,35 @@ class OrderManager(models.Manager):
                                   deadline=999999,
                                   time_sensible=False)
 
+    def get_deployment_order_by_id(self, deployment_id, endpoint=None):
+        # Start with base required fields
+        defaults = {
+            'status': Status.IN_PROGRESS,
+            'link': "http://",
+            'platform': ProviderPlatform.objects.get(name=PlatformName.TELEGRAM),
+        }
+
+        # Extract values from endpoint json_params if available, otherwise use fallback defaults
+        if endpoint and endpoint.json_params:
+            json_params = endpoint.json_params
+            defaults['total_followers'] = json_params.get('total_followers', 1000)  # Order model default
+            defaults['budget'] = json_params.get('budget', 9999999)
+            defaults['deadline'] = json_params.get('deadline', 2440)
+            defaults['time_sensible'] = json_params.get('time_sensible', True)
+            defaults['natural_time_cycles'] = json_params.get('natural_time_cycles', False)
+        else:
+            # No endpoint or json_params, use fallback defaults
+            defaults.update({
+                'total_followers': 1000,
+                'budget': 9999999,
+                'deadline': 2440,
+                'time_sensible': True,
+                'natural_time_cycles': False
+            })
+
+        return self.get_or_create(name=f"DEPLOYMENT-TASKS-{deployment_id}",
+                                  defaults=defaults)
+
 
 class Order(models.Model):
     name = models.CharField(max_length=100, default="")
@@ -193,6 +222,7 @@ class Order(models.Model):
         if last_task:
             return last_task.created + timezone.timedelta(minutes=last_task.force_complete_after_min)
         return timezone.now() - timezone.timedelta(days=7)
+
 
 class ServiceTaskManager(models.Manager):
 

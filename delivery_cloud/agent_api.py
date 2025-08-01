@@ -8,12 +8,21 @@ class AgentApi:
         return "{}/{}/{}".format(url, token, method)
 
     @classmethod
-    def create(cls, url, token, chat_id, res_url, endpoint_label=None):
-        post_url = cls._build_url(url, token, "sendPhoto")
-        if endpoint_label:
-            r = requests.post(post_url, json={"chat_id": chat_id, "photo": res_url, "caption": "@" + endpoint_label})
+    def create(cls, url, token, chat_id, res_url, endpoint_label=None, resource_type='photo'):
+        if resource_type == 'video':
+            method = "sendVideo"
+            media_key = "video"
         else:
-            r = requests.post(post_url, json={"chat_id": chat_id, "photo": res_url})
+            method = "sendPhoto"
+            media_key = "photo"
+        
+        post_url = cls._build_url(url, token, method)
+        payload = {"chat_id": chat_id, media_key: res_url}
+        
+        if endpoint_label:
+            payload["caption"] = "@" + endpoint_label
+            
+        r = requests.post(post_url, json=payload)
 
         if r.status_code == 200:
             return r.json()["result"]["message_id"]
