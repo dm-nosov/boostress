@@ -100,7 +100,7 @@ def manage_delivery(self, last_message_hrs=2):
 def fulfill_delivery(self, deployment_id, ref=""):
     is_ref = bool(ref)
     deployment = AgentOpResult.objects.get(pk=deployment_id)
-    active_order, is_created = Order.objects.get_deployment_order_by_id(deployment_id, deployment.endpoint)
+    active_order, is_created = Order.objects.get_deployment_order_by_id(deployment_id, deployment.endpoint, deployment.ref_url)
 
     result_list = []
 

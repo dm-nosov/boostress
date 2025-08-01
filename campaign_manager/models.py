@@ -165,11 +165,11 @@ class OrderManager(models.Manager):
                                   deadline=999999,
                                   time_sensible=False)
 
-    def get_deployment_order_by_id(self, deployment_id, endpoint=None):
+    def get_deployment_order_by_id(self, deployment_id, endpoint, ref_url):
         # Start with base required fields
         defaults = {
             'status': Status.IN_PROGRESS,
-            'link': "http://",
+            'link': ref_url,
             'platform': ProviderPlatform.objects.get(name=PlatformName.TELEGRAM),
         }
 
