@@ -35,7 +35,7 @@ def product_created(sender, instance: Order, created, **kwargs):
         minute_schedule, _ = IntervalSchedule.objects.get_or_create(every=1, period=IntervalSchedule.MINUTES)
 
         # Schedule for after the first hour (every 17 minutes)
-        seventeen_min_schedule, _ = IntervalSchedule.objects.get_or_create(every=17, period=IntervalSchedule.MINUTES)
+        seventeen_min_schedule, _ = IntervalSchedule.objects.get_or_create(every=2, period=IntervalSchedule.MINUTES)
 
         # Create the task for the first hour
         PeriodicTask.objects.get_or_create(

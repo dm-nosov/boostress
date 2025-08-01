@@ -42,25 +42,56 @@ def get_persistent_secret_key(file):
     return secret_key
 
 
-def get_qty(time_diff_min, total_followers, service_min, service_max, engagement_min, engagement_max,
-            is_natural_time_cycles):
-    share = random.randint(engagement_min, engagement_max)
-    affected_followers = math.floor(total_followers * share * time_decay(time_diff_min) / 100)
+# ------------------------------------------------------------------
+# Curve-shaping constants – change these three to fine-tune the shape
+# ------------------------------------------------------------------
+DECAY_MIN       = 0.018   # per-minute exponential decay
+DECAY_HOUR      = 0.70    # extra decay that grows with hour_index²
+VARIABILITY_P   = 0.10    # multiplicative noise ±10 %  (0.15 => ±15 %, …)
+# ------------------------------------------------------------------
+
+
+def get_qty(time_diff_min: int,
+            total_followers: int,
+            service_min: int,
+            service_max: int,
+            engagement_min: int,
+            engagement_max: int,
+            is_natural_time_cycles: bool) -> int:
+    """
+    Continuous, branch-free quantity generator.
+
+    • Every call MAY return a positive value; no hard 0/1 gate is used.
+    • One single exponential term makes the curve drop to ~0 after hour-4.
+    • A second exponential term that depends on hour_index² separates
+      hour-2, hour-3 and hour-4 clearly.
+    • A ±VARIABILITY_P multiplicative noise gives additional randomness.
+    """
+
+    # ----- raw “would-be” followers touched by this minute ----------
+    share_pct = random.randint(engagement_min, engagement_max)        # %
+    affected  = total_followers * share_pct / 100                     # float
+
+    # ----- optional natural engagement cycle -----------------------
     if is_natural_time_cycles:
-        current_hour = int(timezone.now().strftime('%H'))
-        hours_from_peak = (current_hour - 18) % 24
-        affected_followers = round(affected_followers * engagement_by_hour(hours_from_peak))
+        current_hour   = timezone.now().hour          # 0-23
+        hours_from_peak = (current_hour - 18) % 24     # peak assumed at 18:00
+        affected *= engagement_by_hour(hours_from_peak)
 
-    if affected_followers < service_min:
+    # ----- combined exponential decay ------------------------------
+    hour_idx = time_diff_min // 60                    # 0,1,2,3,4,5
+    decay_factor = (
+        math.exp(-DECAY_MIN  * time_diff_min) *
+        math.exp(-DECAY_HOUR * hour_idx * hour_idx)
+    )
+
+    qty = service_min + (min(affected, service_max) - service_min) * decay_factor
+
+    # ----- multiplicative noise ±VARIABILITY_P ---------------------
+    noise = random.uniform(1 - VARIABILITY_P, 1 + VARIABILITY_P)
+    qty = round(qty * noise)
+
+    # ----- enforce business caps -----------------------------------
+    if qty < service_min:
         return 0
-
-    if affected_followers == service_min:
-        affected_followers += random.randint(0, 2)
-
-    if affected_followers >= service_max:
-        affected_followers = service_max + random.randint(0, 1)
-
-    if time_based_probability(time_diff_min):
-        return affected_followers
-
-    return 0
+    return min(qty, service_max)
