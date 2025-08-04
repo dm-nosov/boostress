@@ -48,6 +48,7 @@ class AgentResource(models.Model):
     url = models.CharField(max_length=255, default="")
     is_active = models.BooleanField(default=True)
     resource_type = models.CharField(max_length=10, choices=RESOURCE_TYPE_CHOICES, default='photo')
+    caption = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Endpoint(models.Model):

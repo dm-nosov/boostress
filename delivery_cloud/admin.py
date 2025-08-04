@@ -14,9 +14,9 @@ class AgentOpResultAdmin(admin.ModelAdmin):
 
 
 class AgentResourceAdmin(admin.ModelAdmin):
-    list_display = ('created', 'url', 'resource_type', 'is_active')
+    list_display = ('created', 'url', 'resource_type', 'is_active', 'caption')
     list_filter = ('resource_type', 'is_active')
-    search_fields = ('url',)
+    search_fields = ('url', 'caption')
 
     def get_urls(self):
         urls = super().get_urls()
@@ -44,6 +44,7 @@ class AgentResourceAdmin(admin.ModelAdmin):
                     url=row['url'],
                     is_active=True,
                     resource_type=row.get('resource_type', 'photo'),
+                    caption=row.get('caption', None),
                 )
                 if not AgentResource.objects.filter(url=obj.url):
                     objects.append(obj)

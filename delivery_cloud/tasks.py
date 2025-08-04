@@ -53,10 +53,10 @@ def create_resource(agent, endpoint, another_endpoint=None):
     op_id = 0
     use_reference = False
     if another_endpoint and random.randint(1, 10) < 3:
-        op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, another_endpoint.label, resource.resource_type)
+        op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, another_endpoint.label, resource.resource_type, resource.caption)
         use_reference = True
     else:
-        op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, None, resource.resource_type)
+        op_id = AgentApi.create(agent.api_url, agent.token, endpoint.ext_id, resource.url, None, resource.resource_type, resource.caption)
 
     if op_id == 0:
         return {"status": "error", "details": "CREATE: op_id is 0", "endpoint": endpoint.name, "operation": "create"}

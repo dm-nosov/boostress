@@ -25,7 +25,7 @@ def api_create_resource(request):
         return JsonResponse({'error': '"url" is required'}, status=400)
     
     defaults = {}
-    for field in ('resource_type', 'is_active'):
+    for field in ('resource_type', 'is_active', 'caption'):
         if field in data:
             defaults[field] = data[field]
     
@@ -35,5 +35,9 @@ def api_create_resource(request):
         if defaults['resource_type'] not in valid_types:
             return JsonResponse({'error': f'resource_type must be one of: {valid_types}'}, status=400)
     
+    # Truncate caption to 255 characters if provided
+    if 'caption' in defaults and defaults['caption']:
+        defaults['caption'] = defaults['caption'][:255]
+    
     resource = AgentResource.objects.create(url=url, **defaults)
-    return JsonResponse({'id': resource.id, 'url': resource.url, 'resource_type': resource.resource_type}, status=201)
+    return JsonResponse({'id': resource.id, 'url': resource.url, 'resource_type': resource.resource_type, 'caption': resource.caption}, status=201)
