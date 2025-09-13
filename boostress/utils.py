@@ -47,7 +47,7 @@ def get_persistent_secret_key(file):
 # ------------------------------------------------------------------
 DECAY_MIN       = 0.018   # per-minute exponential decay
 DECAY_HOUR      = 0.70    # extra decay that grows with hour_index²
-VARIABILITY_P   = 0.10    # multiplicative noise ±10 %  (0.15 => ±15 %, …)
+VARIABILITY_P   = 0.50    # multiplicative noise ±10 %  (0.15 => ±15 %, …)
 # ------------------------------------------------------------------
 
 
@@ -88,7 +88,7 @@ def get_qty(time_diff_min: int,
     qty = service_min + (min(affected, service_max) - service_min) * decay_factor
 
     # ----- multiplicative noise ±VARIABILITY_P ---------------------
-    noise = random.uniform(1 - VARIABILITY_P, 1 + VARIABILITY_P)
+    noise = random.uniform(VARIABILITY_P, 1 + VARIABILITY_P)
     qty = round(qty * noise)
 
     # ----- enforce business caps -----------------------------------
