@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 RUN groupadd -r django && useradd -r -g django django
 
 RUN apt-get update && apt-get install -y gcc \
-       && apt-get install -y libpcre3 libpcre3-dev netcat-openbsd \
+       && apt-get install -y libpcre3 netcat-openbsd \
        && apt-get clean
 
 # Set work directory
